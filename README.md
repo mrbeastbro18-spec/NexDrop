@@ -47,3 +47,12 @@ worker: npm run email:worker
 - API routes are under `app/api`.
 - Uploads are chunked and stored on disk under `STORAGE_PATH`.
 - PostgreSQL is required; Redis is optional for future rate limiting and cache features.
+
+## Deployment notes
+
+- Prisma engines require a compatible OpenSSL library at build/runtime. CI systems that use Alpine/musl images can encounter "libssl.so.1.1" errors. Recommended options:
+   - Build using the provided `Dockerfile` (Debian-based `node:20-bullseye-slim`) which includes OpenSSL 1.1 compatibility.
+   - Or ensure your build image installs `libssl1.1` (or the compatible package) before running `npm ci` / `npm run build`.
+- Some deployment platforms upload the `.next` folder directly and may refuse non-regular files (symlinks) under `.next/node_modules`. The build now removes those post-build to avoid upload failures.
+
+If you run into issues, prefer building inside the included Dockerfile or in a Debian-based CI runner.
