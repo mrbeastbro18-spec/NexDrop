@@ -15,6 +15,18 @@ Single-package full-stack file storage app built with Next.js App Router, Prisma
 - Lint: `npm run lint`
 - Start: `npm run start:prod`
 
+**Commands**
+
+- **Install (local):** `npm install`
+- **Install (CI / reproducible):** `npm ci`
+- **Build (production):** `npm run build`
+- **Start (production):** `npm run start:prod` (uses built artifacts)
+- **Start (development):** `npm run dev`
+- **Lint:** `npm run lint`
+- **Unit tests:** `npm test`
+- **E2E tests:** `npm run test:e2e`
+- **Prisma commands:** `npx prisma db push`, `npm run db:migrate`, `npm run db:studio`
+
 ## Procfile
 If you deploy to Heroku, Render, Railway, or any provider that supports a Procfile, use:
 
@@ -36,6 +48,11 @@ worker: npm run email:worker
    - `docker compose -f docker-compose.prod.yml exec nginx nginx -s reload`
 5. Renew certificates periodically:
    - `./scripts/renew_cert.sh`
+
+**Runtime notes**
+
+- The app enforces required production environment variables at runtime only when `NEXDROP_RUNTIME=1` is set (the provided `Dockerfile` sets this). This avoids build-time failures during static generation while ensuring secrets are validated in production.
+- Prefer Debian-based Node images (the `Dockerfile` uses `node:20-bullseye-slim`) or ensure `libssl1.1` is installed in your build/runtime image to avoid Prisma/libssl compatibility errors.
 
 ## Tests
 - Unit tests: `npm test`
