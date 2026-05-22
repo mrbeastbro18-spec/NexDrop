@@ -6,11 +6,12 @@ import { Readable } from 'stream';
 
 export const runtime = 'nodejs';
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, ctx: any) {
   const user = await currentUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
 
-  const { id } = params;
+  const params = await (ctx?.params ?? {});
+  const { id } = params as { id: string };
   const file = await prisma.file.findFirst({ where: { id, userId: user.id } });
   if (!file) return new Response('Not found', { status: 404 });
 

@@ -1,5 +1,5 @@
 import { jwtVerify, SignJWT } from 'jose';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { sha256 } from './utils';
 import { env } from './env';

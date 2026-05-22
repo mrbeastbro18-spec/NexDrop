@@ -2,12 +2,13 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import { Readable } from 'stream';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
-  const { token } = params;
+export async function GET(req: NextRequest, ctx: any) {
+  const params = await (ctx?.params ?? {});
+  const { token } = params as { token: string };
   const share = await prisma.shareLink.findUnique({ where: { token }, include: { file: true } });
   if (!share) return new Response('Not found', { status: 404 });
   if (share.expiresAt && share.expiresAt < new Date()) return new Response('Expired', { status: 410 });
