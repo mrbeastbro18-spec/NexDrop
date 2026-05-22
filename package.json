@@ -7,6 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "start:prod": "next start -p ${PORT:-3000}",
+    "postbuild": "rm -rf .next/node_modules .next/standalone/.next/node_modules || true",
     "lint": "eslint . --ext .ts,.tsx",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",

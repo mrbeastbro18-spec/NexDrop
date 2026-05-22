@@ -15,6 +15,18 @@ Single-package full-stack file storage app built with Next.js App Router, Prisma
 - Lint: `npm run lint`
 - Start: `npm run start:prod`
 
+**Commands**
+
+- **Install (local):** `npm install`
+- **Install (CI / reproducible):** `npm ci`
+- **Build (production):** `npm run build`
+- **Start (production):** `npm run start:prod` (uses built artifacts)
+- **Start (development):** `npm run dev`
+- **Lint:** `npm run lint`
+- **Unit tests:** `npm test`
+- **E2E tests:** `npm run test:e2e`
+- **Prisma commands:** `npx prisma db push`, `npm run db:migrate`, `npm run db:studio`
+
 ## Procfile
 If you deploy to Heroku, Render, Railway, or any provider that supports a Procfile, use:
 
@@ -37,6 +49,11 @@ worker: npm run email:worker
 5. Renew certificates periodically:
    - `./scripts/renew_cert.sh`
 
+**Runtime notes**
+
+- The app enforces required production environment variables at runtime only when `NEXDROP_RUNTIME=1` is set (the provided `Dockerfile` sets this). This avoids build-time failures during static generation while ensuring secrets are validated in production.
+- Prefer Debian-based Node images (the `Dockerfile` uses `node:20-bullseye-slim`) or ensure `libssl1.1` is installed in your build/runtime image to avoid Prisma/libssl compatibility errors.
+
 ## Tests
 - Unit tests: `npm test`
 - E2E tests: `npm run test:e2e`
@@ -47,3 +64,12 @@ worker: npm run email:worker
 - API routes are under `app/api`.
 - Uploads are chunked and stored on disk under `STORAGE_PATH`.
 - PostgreSQL is required; Redis is optional for future rate limiting and cache features.
+
+## Deployment notes
+
+- Prisma engines require a compatible OpenSSL library at build/runtime. CI systems that use Alpine/musl images can encounter "libssl.so.1.1" errors. Recommended options:
+   - Build using the provided `Dockerfile` (Debian-based `node:20-bullseye-slim`) which includes OpenSSL 1.1 compatibility.
+   - Or ensure your build image installs `libssl1.1` (or the compatible package) before running `npm ci` / `npm run build`.
+- Some deployment platforms upload the `.next` folder directly and may refuse non-regular files (symlinks) under `.next/node_modules`. The build now removes those post-build to avoid upload failures.
+
+If you run into issues, prefer building inside the included Dockerfile or in a Debian-based CI runner.

@@ -1,5 +1,9 @@
 generator client {
   provider = "prisma-client-js"
+  // ensure Prisma downloads a binary compatible with Debian/OpenSSL 1.1
+  // and the native platform. This helps CI/build systems that run on
+  // glibc-based images instead of musl (Alpine).
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
