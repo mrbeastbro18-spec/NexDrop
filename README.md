@@ -12,6 +12,7 @@ Single-package full-stack file storage app built with Next.js App Router, Prisma
 ## Production commands
 - Install: `npm ci`
 - Build: `npm run build`
+- Lint: `npm run lint`
 - Start: `npm run start:prod`
 
 ## Procfile

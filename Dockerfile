@@ -1,14 +1,14 @@
 FROM node:20-bullseye-slim AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
-RUN npm install --legacy-peer-deps --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 
 FROM node:20-bullseye-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npx prisma generate
+RUN npm exec prisma generate
 RUN npm run build
 
 FROM node:20-bullseye-slim AS runner
@@ -21,3 +21,4 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 EXPOSE 3000
 CMD ["node", "server.js"]
+

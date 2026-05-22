@@ -14,7 +14,12 @@ export function AdminUsers() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void load();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   async function action(id: string, act: 'promote' | 'demote' | 'delete') {
     const method = act === 'delete' ? 'DELETE' : 'PATCH';

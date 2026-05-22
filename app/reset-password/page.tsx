@@ -5,19 +5,17 @@ import { useRouter } from 'next/navigation';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      return new URLSearchParams(window.location.search).get('token') || '';
+    } catch {
+      return '';
+    }
+  });
   const [password, setPassword] = useState('');
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      setToken(params.get('token') || '');
-    } catch (e) {
-      setToken('');
-    }
-  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

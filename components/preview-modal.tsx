@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect } from 'react';
 
 export function PreviewModal({ file, open, onClose }: { file: any; open: boolean; onClose: () => void }) {
@@ -20,7 +21,16 @@ export function PreviewModal({ file, open, onClose }: { file: any; open: boolean
         <div className="bg-white dark:bg-slate-900 rounded p-4">
           <div className="flex justify-end"><button className="btn btn-ghost" onClick={onClose}>Close</button></div>
           <div className="mt-2">
-            {isImage ? <img src={`/api/files/${file.id}/preview`} className="max-h-[70vh] w-full object-contain" alt={file.originalName} /> : null}
+            {isImage ? (
+              <Image
+                src={`/api/files/${file.id}/preview`}
+                alt={file.originalName}
+                width={1200}
+                height={800}
+                className="max-h-[70vh] w-full object-contain"
+                unoptimized
+              />
+            ) : null}
             {isVideo ? (
               <video controls className="w-full max-h-[70vh] bg-black">
                 <source src={`/api/files/${file.id}/preview`} type={file.mimeType} />
