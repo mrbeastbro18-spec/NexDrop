@@ -3,7 +3,7 @@ import { currentUser as getUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { assembleChunks, cleanupChunks, finalFilePath, ensureStorage, userDir, writeChunk, uploadLocalToStore } from '@/lib/storage';
 import { env } from '@/lib/env';
-import { safeFileName } from '@/lib/utils';
+import utils from '@/lib/utils.js';
 import { uploadChunkSchema, mimeTypeSchema } from '@/lib/validation';
 import { uploads } from '@/lib/metrics';
 import { rateLimitUpload } from '@/lib/rate-limit';
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
         create: {
           id: fileId,
           userId: user.id,
-          fileName: safeFileName(fileName),
+          fileName: utils.safeFileName(fileName),
           originalName: fileName,
           mimeType: mimeType,
           size: 0n,
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
       // If S3 is enabled, upload final file to S3 and update storagePath
       let newStoragePath = file.storagePath;
       if (env.S3_ENABLED) {
-        const key = `${user.id}/${fileId}-${safeFileName(file.originalName)}`;
+        const key = `${user.id}/${fileId}-${utils.safeFileName(file.originalName)}`;
         try {
           await uploadLocalToStore(file.storagePath, key);
           newStoragePath = key;

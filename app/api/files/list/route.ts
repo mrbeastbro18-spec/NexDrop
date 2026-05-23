@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { humanSize } from '@/lib/utils';
+import utils from '@/lib/utils.js';
 
 export const runtime = 'nodejs';
 
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       id: f.id,
       originalName: f.originalName,
       mimeType: f.mimeType,
-      size: humanSize(f.size),
+      size: utils.humanSize(f.size),
       createdAt: f.createdAt,
       shareToken: f.shareLink?.token || null
     }))

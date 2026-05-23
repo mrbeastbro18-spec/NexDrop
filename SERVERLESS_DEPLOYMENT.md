@@ -74,7 +74,7 @@ In your platform's dashboard, set all required runtime variables (see above).
 ### 3. First Deployment
 1. Push to `main` branch (or trigger manual deploy)
 2. Build will:
-   - Install dependencies with `npm ci --include=dev`
+   - Install dependencies with `npm ci --include=dev --ignore-scripts`
    - Run `npm run build` which:
      - Regenerates Prisma client with `linux-musl` target
      - Compiles Next.js without Prisma errors
@@ -148,7 +148,7 @@ Make sure `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` are set in your env vars.
 
 NexDrop has been tested and is compatible with:
 - ✅ SynthLaunch (Alpine)
-- ✅ Render (Alpine with `node:20-alpine`)
+- ✅ Render (Alpine with `node:24-alpine`)
 - ✅ Railway (Alpine)
 - ✅ Heroku (Debian-based, also works)
 - ✅ Vercel (with serverless functions, configure `output: "standalone"`)

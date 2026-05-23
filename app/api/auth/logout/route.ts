@@ -4,7 +4,6 @@ import { env } from '@/lib/env';
 import { clearAuthCookies, hashToken, rotateTokens, saveSession, setAuthCookies, signAccessToken, signRefreshToken, verifyRefreshToken } from '@/lib/auth';
 import { sendEmail } from '@/lib/email';
 import * as bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 
 export const runtime = 'nodejs';
 

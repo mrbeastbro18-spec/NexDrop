@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
 import { env } from './env';
-import { safeFileName } from './utils';
+import utils from './utils.js';
 
 import {
   S3Client,
@@ -38,7 +38,7 @@ export function tempDir(fileId: string) {
 }
 
 export function finalFilePath(userId: string, fileId: string, originalName: string) {
-  return path.join(userDir(userId), `${fileId}-${safeFileName(originalName)}`);
+  return path.join(userDir(userId), `${fileId}-${utils.safeFileName(originalName)}`);
 }
 
 export async function writeChunk(fileId: string, index: number, data: ArrayBuffer) {

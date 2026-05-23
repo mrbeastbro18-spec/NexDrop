@@ -1,10 +1,11 @@
 import { jwtVerify, SignJWT } from 'jose';
 import * as bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
-import { sha256 } from './utils';
+import utils from './utils.js';
 import { env } from './env';
 import { prisma } from './prisma';
 import { Role } from '@prisma/client';
+import { randomUUID } from 'node:crypto';
 
 const accessName = 'nd_access';
 const refreshName = 'nd_refresh';
@@ -27,7 +28,7 @@ export async function signRefreshToken(payload: { sub: string }) {
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(payload.sub)
     .setIssuedAt()
-    .setJti(crypto.randomUUID())
+    .setJti(randomUUID())
     .setExpirationTime(env.REFRESH_TOKEN_TTL)
     .sign(secret(env.JWT_REFRESH_SECRET));
   return token;
@@ -44,7 +45,7 @@ export async function verifyRefreshToken(token: string) {
 }
 
 export async function hashToken(token: string) {
-  return sha256(token);
+  return utils.sha256(token);
 }
 
 export function authCookieOptions(maxAgeSeconds: number) {
@@ -132,7 +133,7 @@ export async function registerUser(input: { email: string; password: string; ful
   if (exists) throw new Error('EMAIL_EXISTS');
 
   const passwordHash = await bcrypt.hash(input.password, 12);
-  const verificationToken = crypto.randomUUID();
+  const verificationToken = randomUUID();
 
   const user = await prisma.user.create({
     data: {

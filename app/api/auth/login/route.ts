@@ -4,7 +4,7 @@ import { env } from '@/lib/env';
 import { clearAuthCookies, hashToken, rotateTokens, saveSession, setAuthCookies, signAccessToken, signRefreshToken, verifyRefreshToken } from '@/lib/auth';
 import { sendEmail } from '@/lib/email';
 import * as bcrypt from 'bcryptjs';
-import crypto from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { loginSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
 
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Issue CSRF token cookie (double-submit cookie pattern)
-    const csrfToken = crypto.randomBytes(24).toString('hex');
+    const csrfToken = randomBytes(24).toString('hex');
     res.cookies.set('nd_csrf', csrfToken, {
       httpOnly: false,
       sameSite: 'lax',

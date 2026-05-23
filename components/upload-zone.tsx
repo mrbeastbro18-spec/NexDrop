@@ -58,10 +58,15 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
   }
 
   return (
-    <div className="card space-y-4 p-5">
-      <div>
-        <h2 className="text-lg font-semibold">Upload files</h2>
-        <p className="text-sm text-slate-300">Chunked upload in one app, no separate backend required.</p>
+    <div className="section-card space-y-4">
+      <div className="stack-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="title-md font-semibold">Upload files</h2>
+            <p className="detail mt-2 text-sm leading-6">Chunked upload in one app, with CSRF protection and storage quota checks.</p>
+          </div>
+          <span className="pill">Drag & drop</span>
+        </div>
       </div>
       <div
         onDrop={handleDrop}
@@ -69,15 +74,15 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
         role="button"
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter') document.getElementById('file-input')?.click(); }}
-        className="border-dashed border-2 border-slate-700 p-4 rounded">
+        className="rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--panel-strong)] p-4">
         <input id="file-input" className="field" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-        <p className="text-sm text-slate-400">Or drag & drop a file here</p>
+        <p className="mt-3 text-sm text-[color:var(--muted)]">Or drag and drop a file here. Large files are split into chunks automatically.</p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <button disabled={!file || busy} className="btn btn-primary" onClick={uploadSelected} type="button">
           {busy ? 'Uploading...' : 'Upload'}
         </button>
-        <span className="text-sm text-slate-300">{progress ? `${progress}%` : status}</span>
+        <span className="text-sm text-[color:var(--muted)]">{progress ? `${progress}%` : status}</span>
       </div>
     </div>
   );

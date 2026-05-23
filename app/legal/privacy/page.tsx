@@ -1,3 +1,11 @@
 export default function PrivacyPage() {
-  return <main className="container py-10"><div className="card p-6 space-y-3"><h1 className="text-2xl font-bold">Privacy Policy</h1><p className="text-slate-300">This is a starter privacy policy page for NexDrop.</p></div></main>;
+  return (
+    <main className="page-shell">
+      <div className="section-card stack-4">
+        <span className="eyebrow">Privacy</span>
+        <h1 className="title-lg">Privacy Policy</h1>
+        <p className="supporting max-w-3xl text-base leading-7">This is a starter privacy policy page for NexDrop. Replace it with your production policy before launch.</p>
+      </div>
+    </main>
+  );
 }

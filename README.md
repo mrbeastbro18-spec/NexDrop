@@ -15,7 +15,7 @@ Single-package full-stack file storage app built with Next.js App Router, Prisma
 5. Start: `npm run dev`
 
 ## Production commands
-- Install: `npm ci --include=dev`
+- Install: `npm ci --include=dev --ignore-scripts`
 - Build: `npm run build`
 - Lint: `npm run lint`
 - Start: `npm run start:prod`
@@ -45,7 +45,7 @@ Runtime validation note:
 **Commands**
 
 - **Install (local):** `npm install`
-- **Install (CI / reproducible):** `npm ci --include=dev`
+- **Install (CI / reproducible):** `npm ci --include=dev --ignore-scripts`
 - **Build (production):** `npm run build`
 - **Start (production):** `npm run start:prod` (uses built artifacts)
 - **Start (development):** `npm run dev`
@@ -94,8 +94,14 @@ worker: npm run email:worker
 ## Deployment notes
 
 - Prisma engines require a compatible OpenSSL library at build/runtime. CI systems that use Alpine/musl images can encounter "libssl.so.1.1" errors. Recommended options:
-   - Build using the provided `Dockerfile` (Debian-based `node:20-bullseye-slim`) which includes OpenSSL 1.1 compatibility.
+   - Build using the provided `Dockerfile` (Debian-based `node:24-bookworm-slim`) which includes OpenSSL 1.1 compatibility.
    - Or ensure your build image installs `libssl1.1` (or the compatible package) before running `npm ci` / `npm run build`.
 - Some deployment platforms upload the `.next` folder directly and may refuse non-regular files (symlinks) under `.next/node_modules`. The build now removes those post-build to avoid upload failures.
 
 If you run into issues, prefer building inside the included Dockerfile or in a Debian-based CI runner.
+
+For SynthLaunch, use the same production commands listed above:
+
+- Install: `npm ci --include=dev --ignore-scripts`
+- Build: `npm run build`
+- Start: `npm run start:prod`

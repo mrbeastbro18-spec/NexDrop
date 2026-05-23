@@ -34,18 +34,18 @@ export function SearchBar() {
         id="search"
         aria-label="Search files"
         placeholder="Search files..."
-        className="field"
+        className="search-input"
         value={q}
         onChange={(e) => { setQ(e.target.value); scheduleSearch(e.target.value); }}
       />
       {results && (
-        <div className="absolute right-0 mt-2 w-80 bg-slate-800 border rounded shadow-lg z-50">
-          {loading ? <div className="p-3 text-sm">Searching…</div> : null}
-          {results.length === 0 ? <div className="p-3 text-sm text-slate-400">No results</div> : null}
+        <div className="absolute right-0 z-50 mt-2 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] shadow-[0_22px_55px_rgba(15,23,42,0.16)] md:w-96">
+          {loading ? <div className="p-3 text-sm text-[color:var(--muted)]">Searching…</div> : null}
+          {results.length === 0 ? <div className="p-3 text-sm text-[color:var(--muted)]">No results</div> : null}
           {results.map((r) => (
-            <Link key={r.id} href={`/dashboard`} className="block p-2 hover:bg-slate-700 border-b">
-              <div className="text-sm">{r.originalName}</div>
-              <div className="text-xs text-slate-400">{r.size} • {new Date(r.createdAt).toLocaleDateString()}</div>
+            <Link key={r.id} href={`/dashboard`} className="block border-b border-[var(--border)] px-3 py-2 transition hover:bg-[var(--accent-soft)] last:border-b-0">
+              <div className="text-sm font-medium">{r.originalName}</div>
+              <div className="text-xs text-[color:var(--muted)]">{r.size} • {new Date(r.createdAt).toLocaleDateString()}</div>
             </Link>
           ))}
         </div>

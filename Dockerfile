@@ -1,17 +1,17 @@
-FROM node:20-bullseye-slim AS deps
+FROM node:24-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
-RUN npm ci --no-audit --no-fund
+RUN npm ci --include=dev --ignore-scripts --no-audit --no-fund
 
-FROM node:20-bullseye-slim AS builder
+FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm exec prisma generate
 RUN npm run build
 
-FROM node:20-bullseye-slim AS runner
+FROM node:24-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXDROP_RUNTIME=1

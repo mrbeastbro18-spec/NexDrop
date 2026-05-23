@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { AuthShell, AuthLink } from '@/components/auth-shell';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,17 +28,30 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="container py-10">
-      <form onSubmit={submit} className="card mx-auto max-w-md space-y-4 p-6">
-        <h1 className="text-2xl font-semibold">Login</h1>
-        <label className="sr-only" htmlFor="email">Email</label>
-        <input id="email" name="email" className="field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <label className="sr-only" htmlFor="password">Password</label>
-        <input id="password" name="password" className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        {error ? <p className="text-sm text-red-300">{error}</p> : null}
-        <button disabled={busy} className="btn btn-primary w-full">{busy ? 'Signing in...' : 'Sign in'}</button>
-        <p className="text-sm text-slate-300">New here? <Link className="underline" href="/register">Create an account</Link></p>
+    <AuthShell
+      eyebrow="Welcome back"
+      title="Sign in to your NexDrop workspace."
+      description="Access your files, shares, and admin tools from a refined dashboard built for fast daily use."
+      footer={(
+        <p>
+          New here? <AuthLink href="/register">Create an account</AuthLink>. <AuthLink href="/forgot-password">Reset your password</AuthLink> if needed.
+        </p>
+      )}
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <div className="stack-4">
+          <label className="sr-only" htmlFor="email">Email</label>
+          <input id="email" name="email" className="field" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label className="sr-only" htmlFor="password">Password</label>
+          <input id="password" name="password" className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        {error ? <p className="text-sm text-[color:var(--danger)]">{error}</p> : null}
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span className="detail">Use the same email address tied to your account.</span>
+          <AuthLink href="/forgot-password">Forgot?</AuthLink>
+        </div>
+        <button disabled={busy} className="btn btn-primary w-full" type="submit">{busy ? 'Signing in...' : 'Sign in'}</button>
       </form>
-    </main>
+    </AuthShell>
   );
 }

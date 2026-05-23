@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import crypto from 'crypto';
+import { randomUUID } from 'node:crypto';
 import * as bcrypt from 'bcryptjs';
 
 export const runtime = 'nodejs';
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const file = await prisma.file.findFirst({ where: { id: fileId, userId: user.id } });
   if (!file) return NextResponse.json({ error: 'File not found' }, { status: 404 });
 
-  const token = crypto.randomUUID().replace(/-/g, '');
+  const token = randomUUID().replace(/-/g, '');
   const passwordHash = password ? await bcrypt.hash(password, 12) : null;
 
   const share = await prisma.shareLink.upsert({

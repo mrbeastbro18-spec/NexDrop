@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { queueEmail } from '@/lib/email';
-import crypto from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { emailSchema, forgotPasswordSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate reset token (cryptographically secure)
-    const resetToken = crypto.randomUUID();
+    const resetToken = randomUUID();
 
     // Save reset token with 1-hour expiry
     await prisma.user.update({
