@@ -1,7 +1,7 @@
 generator client {
   provider = "prisma-client-js"
-  // For serverless Alpine environments: use native for local dev + linux-musl for Alpine deployments
-  // This allows both local development and Alpine serverless deployments to work
+  // Alpine serverless environments need linux-musl; local dev uses native.
+  // This configuration avoids OpenSSL 1.1 dependency issues on Alpine.
   binaryTargets = ["native", "linux-musl"]
 }
 
