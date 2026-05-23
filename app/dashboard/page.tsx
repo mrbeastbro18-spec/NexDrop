@@ -41,7 +41,7 @@ export default async function DashboardPage({ searchParams }: Props) {
         <UploadZone />
 
         <FileGrid
-          files={files.map((file) => ({
+          files={files.map((file: any) => ({
             id: file.id,
             originalName: file.originalName,
             mimeType: file.mimeType,

@@ -2,6 +2,11 @@
 
 Single-package full-stack file storage app built with Next.js App Router, Prisma, PostgreSQL, and optional Redis.
 
+## Deployment
+
+**For serverless/Alpine Linux deployments (SynthLaunch, Render, Railway, etc.):**
+→ See [SERVERLESS_DEPLOYMENT.md](./SERVERLESS_DEPLOYMENT.md)
+
 ## Run locally
 1. Copy `.env.example` to `.env`.
 2. Start PostgreSQL and Redis.

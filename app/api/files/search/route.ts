@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     meta: { total, page, perPage, totalPages: Math.ceil(total / perPage) },
-    files: files.map((f) => ({
+    files: files.map((f: any) => ({
       id: f.id,
       originalName: f.originalName,
       mimeType: f.mimeType,

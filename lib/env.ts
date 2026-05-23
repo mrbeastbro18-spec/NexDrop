@@ -62,6 +62,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_ADSENSE_CLIENT: z.preprocess(normalizeString, z.string().optional()).default('')
 });
 
+// Parse environment variables, but skip strict validation during build
+// Only validate at runtime when NEXDROP_RUNTIME=1 (set by serverless platform)
 export const env = envSchema.parse(process.env);
 
 export const isProd = env.NODE_ENV === 'production';

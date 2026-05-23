@@ -1,9 +1,8 @@
 generator client {
   provider = "prisma-client-js"
-  // Support both Alpine/Linux musl and Debian/glibc build/runtime environments.
-  // This allows Prisma to work on native Linux builds, Alpine container builds,
-  // and Debian-based runtime deployments.
-  binaryTargets = ["native", "linux-musl", "debian-openssl-1.1.x"]
+  // For serverless Alpine environments: use native for local dev + linux-musl for Alpine deployments
+  // This allows both local development and Alpine serverless deployments to work
+  binaryTargets = ["native", "linux-musl"]
 }
 
 datasource db {
