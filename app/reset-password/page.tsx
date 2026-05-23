@@ -17,6 +17,7 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const hasToken = Boolean(token.trim());
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,8 +51,14 @@ export default function ResetPasswordPage() {
           </div>
         ) : (
           <div className="stack-4">
-            <label className="sr-only" htmlFor="token">Reset token</label>
-            <input id="token" className="field" value={token} onChange={(e) => setToken(e.target.value)} placeholder="Reset token" />
+            {!hasToken ? (
+              <>
+                <label className="sr-only" htmlFor="token">Reset token</label>
+                <input id="token" className="field" value={token} onChange={(e) => setToken(e.target.value)} placeholder="Reset token" />
+              </>
+            ) : (
+              <p className="detail text-sm">Recovery token loaded from your email link.</p>
+            )}
             <label className="sr-only" htmlFor="password">New password</label>
             <input id="password" className="field" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="New password" />
             <button className="btn btn-primary w-full" type="submit">Update password</button>

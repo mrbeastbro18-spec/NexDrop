@@ -34,7 +34,7 @@ export default function LoginPage() {
       description="Access your files, shares, and admin tools from a refined dashboard built for fast daily use."
       footer={(
         <p>
-          New here? <AuthLink href="/register">Create an account</AuthLink>. Password resets are sent through your email link.
+          New here? <AuthLink href="/register">Create an account</AuthLink>. <AuthLink href="/forgot-password">Reset your password</AuthLink> if needed.
         </p>
       )}
     >
@@ -46,6 +46,10 @@ export default function LoginPage() {
           <input id="password" name="password" className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         {error ? <p className="text-sm text-[color:var(--danger)]">{error}</p> : null}
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span className="detail">Use the same email address tied to your account.</span>
+          <AuthLink href="/forgot-password">Forgot?</AuthLink>
+        </div>
         <button disabled={busy} className="btn btn-primary w-full" type="submit">{busy ? 'Signing in...' : 'Sign in'}</button>
       </form>
     </AuthShell>

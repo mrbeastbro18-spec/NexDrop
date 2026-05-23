@@ -7,9 +7,9 @@ export default function HomePage() {
         <div className="hero-copy stack-6">
           <span className="eyebrow">Cloud transfer workspace</span>
           <div className="stack-4">
-            <h1 className="title-xl max-w-[11ch]">Ship files with a cleaner, premium experience.</h1>
+            <h1 className="title-xl max-w-[11ch]">Ship files with a polished experience.</h1>
             <p className="supporting max-w-2xl text-lg leading-8">
-              NexDrop brings uploads, sharing, auth, and admin tools into one polished dashboard designed for desktop and mobile.
+              NexDrop brings uploads, sharing, authentication, and admin tools into one refined dashboard designed for desktop and mobile.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -17,41 +17,30 @@ export default function HomePage() {
             <Link className="btn btn-secondary" href="/login">Sign in</Link>
             <Link className="btn btn-ghost" href="/dashboard">Open dashboard</Link>
           </div>
-          <div className="stat-grid pt-2">
-            <div className="stat-card">
-              <div className="stat-number">1 app</div>
-              <p className="detail mt-1 text-sm">Frontend, backend, storage, and sharing in one place.</p>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">Mobile first</div>
-              <p className="detail mt-1 text-sm">Responsive layouts and controls that scale cleanly on every screen.</p>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">Secure</div>
-              <p className="detail mt-1 text-sm">Auth, CSRF, rate limits, and validation are already wired in.</p>
-            </div>
-          </div>
         </div>
 
         <div className="hero-panel stack-6">
-          <div className="section-card">
+          <div className="section-card stack-4">
             <span className="pill">Product highlights</span>
-            <div className="mt-4 stack-4">
-              <div>
+            <div className="section-grid">
+              <div className="feature-card">
                 <p className="title-sm font-semibold">Elegant dashboard</p>
-                <p className="detail mt-2 text-sm">A polished file workspace with richer cards, clear hierarchy, and better spacing.</p>
+                <p className="detail mt-2 text-sm leading-6">A clearer file workspace with stronger hierarchy, better spacing, and faster scanning.</p>
               </div>
-              <div>
+              <div className="feature-card">
                 <p className="title-sm font-semibold">Clean auth flow</p>
-                <p className="detail mt-2 text-sm">Login, registration, and password reset screens now feel like a real product.</p>
+                <p className="detail mt-2 text-sm leading-6">Login, registration, reset, and recovery screens now read like a finished product.</p>
               </div>
-              <div>
+              <div className="feature-card">
                 <p className="title-sm font-semibold">Theme-aware UI</p>
-                <p className="detail mt-2 text-sm">Switch between light and dark without losing readability or polish.</p>
+                <p className="detail mt-2 text-sm leading-6">Switch between light and dark without losing clarity or polish.</p>
+              </div>
+              <div className="feature-card">
+                <p className="title-sm font-semibold">Responsive by design</p>
+                <p className="detail mt-2 text-sm leading-6">Layouts collapse cleanly on mobile and stay spacious on desktop.</p>
               </div>
             </div>
           </div>
-
           <div className="section-grid">
             <div className="feature-card">
               <span className="pill">Fast</span>
