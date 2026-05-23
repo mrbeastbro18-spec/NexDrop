@@ -48,13 +48,13 @@
       "postcss": "8.5.15"
     },
     "vitest": {
-      "vite": "^7.0.0",
+      "vite": "^7.3.3",
       "vite-node": {
-        "vite": "^7.0.0"
+        "vite": "^7.3.3"
       }
     },
     "vite": {
-      "esbuild": "^0.26.0"
+      "esbuild": "^0.28.0"
     }
   },
   "engines": {
