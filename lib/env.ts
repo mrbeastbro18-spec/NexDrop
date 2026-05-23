@@ -23,7 +23,20 @@ const normalizeNumber = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
-const appUrlSchema = z.preprocess(normalizeString, z.string().url()).default('http://localhost:3000').transform((value) => {
+const normalizeUrl = (value: unknown): string | undefined => {
+  const urlString = normalizeString(value);
+  if (!urlString) return undefined;
+  const trimmed = urlString.trim();
+
+  // Allow hostnames without protocol and normalize them to HTTPS.
+  if (/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+(?:\:\d+)?(?:\/.*)?$/.test(trimmed) && !/^https?:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+
+  return trimmed;
+};
+
+const appUrlSchema = z.preprocess(normalizeUrl, z.string().url()).default('http://localhost:3000').transform((value) => {
   const url = new URL(value);
   if (url.pathname.endsWith('/')) url.pathname = url.pathname.slice(0, -1);
   return url.toString().replace(/\/$/, '');

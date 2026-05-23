@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
-    "preinstall": "node ./scripts/install-openssl-alpine.js || true",
     "build": "prisma generate && next build",
     "start": "next start",
     "start:prod": "next start -p ${PORT:-3000}",
