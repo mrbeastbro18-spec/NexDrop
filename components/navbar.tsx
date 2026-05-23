@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ThemeToggle } from './theme-toggle';
 import { SearchBar } from './search-bar';
 
 export function Navbar() {
@@ -15,17 +14,24 @@ export function Navbar() {
   }
 
   return (
-    <div className="container py-6">
-      <nav role="navigation" aria-label="Main navigation" className="card flex items-center justify-between gap-4 px-5 py-4">
-        <Link href="/" className="font-bold tracking-tight">NexDrop</Link>
-        <div className="flex items-center gap-3 text-sm">
-          <div className="w-56">
+    <div className="page-shell pb-0 pt-4">
+      <nav role="navigation" aria-label="Main navigation" className="glass-nav card nav-shell">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="brand-mark">N</span>
+            <span className="font-semibold tracking-tight">NexDrop</span>
+          </Link>
+          <span className="pill hidden sm:inline-flex">Cloud workspace</span>
+        </div>
+        <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center md:justify-end">
+          <div className="w-full md:w-72 lg:w-80">
             <SearchBar />
           </div>
-          <Link href="/dashboard" aria-label="Dashboard">Dashboard</Link>
-          <Link href="/admin" aria-label="Admin">Admin</Link>
-          <ThemeToggle />
-          <button onClick={logout} className="btn btn-ghost py-2" aria-label="Logout">Logout</button>
+          <div className="nav-links text-sm">
+            <Link href="/dashboard" aria-label="Dashboard">Dashboard</Link>
+            <Link href="/admin" aria-label="Admin">Admin</Link>
+            <button onClick={logout} className="btn btn-ghost btn-sm" aria-label="Logout" type="button">Logout</button>
+          </div>
         </div>
       </nav>
     </div>

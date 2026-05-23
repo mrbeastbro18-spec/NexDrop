@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { AuthShell, AuthLink } from '@/components/auth-shell';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -28,19 +28,28 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="container py-10">
-      <form onSubmit={submit} className="card mx-auto max-w-md space-y-4 p-6">
-        <h1 className="text-2xl font-semibold">Create account</h1>
-        <label className="sr-only" htmlFor="fullName">Full name</label>
-        <input id="fullName" name="fullName" className="field" placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-        <label className="sr-only" htmlFor="email">Email</label>
-        <input id="email" name="email" className="field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <label className="sr-only" htmlFor="password">Password</label>
-        <input id="password" name="password" className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        {error ? <p className="text-sm text-red-300">{error}</p> : null}
-        <button disabled={busy} className="btn btn-primary w-full">{busy ? 'Creating...' : 'Create account'}</button>
-        <p className="text-sm text-slate-300">Already have an account? <Link className="underline" href="/login">Login</Link></p>
+    <AuthShell
+      eyebrow="Create account"
+      title="Get a polished file space in minutes."
+      description="Create an account to upload, share, and manage files from a faster, cleaner interface across desktop and mobile."
+      footer={(
+        <p>
+          Already have an account? <AuthLink href="/login">Sign in</AuthLink>
+        </p>
+      )}
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <div className="stack-4">
+          <label className="sr-only" htmlFor="fullName">Full name</label>
+          <input id="fullName" name="fullName" className="field" placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <label className="sr-only" htmlFor="email">Email</label>
+          <input id="email" name="email" className="field" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label className="sr-only" htmlFor="password">Password</label>
+          <input id="password" name="password" className="field" placeholder="Create a strong password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        {error ? <p className="text-sm text-[color:var(--danger)]">{error}</p> : null}
+        <button disabled={busy} className="btn btn-primary w-full" type="submit">{busy ? 'Creating...' : 'Create account'}</button>
       </form>
-    </main>
+    </AuthShell>
   );
 }

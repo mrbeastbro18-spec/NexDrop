@@ -31,19 +31,27 @@ export function AdminUsers() {
   }
 
   return (
-    <div className="card p-4">
-      <h2 className="text-lg font-semibold">Users</h2>
-      {loading ? <div className="text-sm text-slate-400">Loading…</div> : null}
-      <div className="mt-3 space-y-2">
+    <div className="section-card">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="title-md font-semibold">Users</h2>
+          <p className="detail mt-1 text-sm">Promote, demote, or remove access from the admin console.</p>
+        </div>
+        {loading ? <span className="pill">Loading…</span> : null}
+      </div>
+      <div className="mt-4 space-y-3">
         {users.map((u) => (
-          <div key={u.id} className="flex items-center justify-between p-2 border rounded">
-            <div>
-              <div className="font-medium">{u.fullName || u.email}</div>
-              <div className="text-xs text-slate-400">{u.email} • {new Date(u.createdAt).toLocaleString()}</div>
+          <div key={u.id} className="rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="font-medium">{u.fullName || u.email}</div>
+                <div className="meta text-xs">{u.email} • {new Date(u.createdAt).toLocaleString()}</div>
+              </div>
+              <span className="pill">{u.role}</span>
             </div>
-            <div className="flex gap-2">
-              {u.role !== 'ADMIN' ? <button className="btn btn-sm" onClick={() => action(u.id, 'promote')}>Promote</button> : <button className="btn btn-sm" onClick={() => action(u.id, 'demote')}>Demote</button>}
-              <button className="btn btn-ghost btn-sm text-red-400" onClick={() => action(u.id, 'delete')}>Delete</button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {u.role !== 'ADMIN' ? <button className="btn btn-secondary btn-sm" onClick={() => action(u.id, 'promote')} type="button">Promote</button> : <button className="btn btn-secondary btn-sm" onClick={() => action(u.id, 'demote')} type="button">Demote</button>}
+              <button className="btn btn-ghost btn-sm" onClick={() => action(u.id, 'delete')} type="button">Delete</button>
             </div>
           </div>
         ))}

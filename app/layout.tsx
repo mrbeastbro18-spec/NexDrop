@@ -1,4 +1,5 @@
 import './globals.css';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export const metadata = {
   title: 'NexDrop',
@@ -7,13 +8,22 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0f172a" />
       </head>
       <body>
         <a href="#main" className="skip-link">Skip to content</a>
-        <div id="main">{children}</div>
+        <div className="app-shell">
+          <div className="app-shell__ambient app-shell__ambient--one" />
+          <div className="app-shell__ambient app-shell__ambient--two" />
+          <div className="app-shell__noise" />
+          <div className="app-shell__content" id="main">{children}</div>
+          <div className="app-shell__theme-toggle">
+            <ThemeToggle />
+          </div>
+        </div>
       </body>
     </html>
   );
