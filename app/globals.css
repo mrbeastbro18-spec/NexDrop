@@ -351,6 +351,27 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(81, 103, 255, 0.16);
 }
 
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.12) 0%, rgba(148, 163, 184, 0.24) 50%, rgba(148, 163, 184, 0.12) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton.h-4 { height: 1rem; }
+.skeleton.h-6 { height: 1.5rem; }
+.skeleton.h-11 { height: 2.75rem; }
+.skeleton.h-12 { height: 3rem; }
+.skeleton.h-20 { height: 5rem; }
+.skeleton.h-24 { height: 6rem; }
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

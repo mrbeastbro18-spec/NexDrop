@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthShell, AuthLink } from '@/components/auth-shell';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const registered = searchParams.get('registered') === '1';
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,11 +41,17 @@ export default function LoginPage() {
       )}
     >
       <form onSubmit={submit} className="space-y-4">
+        {registered ? (
+          <div className="section-card border-[color:var(--success)] bg-[color:color-mix(in_oklab,var(--success)_10%,transparent)] p-4">
+            <p className="font-medium text-[color:var(--success)]">Account created successfully.</p>
+            <p className="detail mt-1 text-sm">You can sign in with your new credentials now.</p>
+          </div>
+        ) : null}
         <div className="stack-4">
           <label className="sr-only" htmlFor="email">Email</label>
-          <input id="email" name="email" className="field" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input id="email" name="email" type="email" autoComplete="email" required className="field" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
           <label className="sr-only" htmlFor="password">Password</label>
-          <input id="password" name="password" className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input id="password" name="password" className="field" placeholder="Password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         {error ? <p className="text-sm text-[color:var(--danger)]">{error}</p> : null}
         <div className="flex items-center justify-between gap-3 text-sm">

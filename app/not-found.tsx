@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function NotFound() {
   return (
     <main className="page-shell">
@@ -9,8 +11,8 @@ export default function NotFound() {
             <p className="supporting max-w-xl text-base leading-7">The route may have moved or the link is stale. Head back to the homepage or dashboard.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <a className="btn btn-primary" href="/">Home</a>
-            <a className="btn btn-secondary" href="/dashboard">Dashboard</a>
+            <Link className="btn btn-primary" href="/">Home</Link>
+            <Link className="btn btn-secondary" href="/dashboard">Dashboard</Link>
           </div>
         </div>
         <div className="hero-panel section-card stack-4">
