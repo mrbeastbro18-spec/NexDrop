@@ -6,6 +6,12 @@ import { env } from './env';
 import { prisma } from './prisma';
 import { Role } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
+import {
+  BOOTSTRAP_ADMIN_SUBJECT,
+  getBootstrapAdminProfile,
+  isBootstrapAdminEnabled,
+  isBootstrapAdminCredentials
+} from './admin-bootstrap';
 
 const accessName = 'nd_access';
 const refreshName = 'nd_refresh';
@@ -76,6 +82,11 @@ export async function currentUser() {
   if (!token) return null;
   try {
     const payload = await verifyAccessToken(token);
+
+    if (payload.sub === BOOTSTRAP_ADMIN_SUBJECT && payload.role === 'ADMIN') {
+      return getBootstrapAdminProfile() as any;
+    }
+
     const user = await prisma.user.findUnique({ where: { id: payload.sub } });
     return user;
   } catch {
@@ -93,6 +104,14 @@ export async function requireAdmin() {
   const user = await requireUser();
   if (user.role !== 'ADMIN') throw new Error('FORBIDDEN');
   return user;
+}
+
+export function isBootstrapAdminLoginEnabled() {
+  return isBootstrapAdminEnabled();
+}
+
+export function matchesBootstrapAdminCredentials(email: string, password: string) {
+  return isBootstrapAdminCredentials(email, password);
 }
 
 export async function saveSession(userId: string, refreshToken: string, deviceInfo?: string) {

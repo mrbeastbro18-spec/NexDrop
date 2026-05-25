@@ -17,16 +17,43 @@ export default function LoginPage() {
     e.preventDefault();
     setBusy(true);
     setError('');
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    setBusy(false);
-    if (!res.ok) return setError(data.error || 'Login failed');
-    router.push('/dashboard');
-    router.refresh();
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const requestId = res.headers.get('x-request-id') || 'n/a';
+      const data = await res.json().catch(() => ({}));
+
+      setBusy(false);
+
+      if (!res.ok) {
+        if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+          console.error('[auth/login] failed', {
+            status: res.status,
+            requestId,
+            error: data?.error || 'Login failed'
+          });
+        }
+        return setError(data?.error || `Login failed (request ${requestId})`);
+      }
+
+      if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+        console.log('[auth/login] success', { requestId });
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setBusy(false);
+      if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+        console.error('[auth/login] network error', err);
+      }
+      setError('Network error while logging in. Please try again.');
+    }
   }
 
   return (

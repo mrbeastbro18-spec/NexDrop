@@ -5,13 +5,36 @@ import { useEffect, useState } from 'react';
 export function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   async function load() {
     setLoading(true);
-    const res = await fetch('/api/admin/users');
-    const data = await res.json();
-    setUsers(data.users || []);
-    setLoading(false);
+    setError('');
+
+    try {
+      const res = await fetch('/api/admin/users');
+      const requestId = res.headers.get('x-request-id') || 'n/a';
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.error || `Failed to load users (request ${requestId})`);
+        if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+          console.error('[admin/users] load failed', { status: res.status, requestId, error: data?.error });
+        }
+        setUsers([]);
+        setLoading(false);
+        return;
+      }
+
+      setUsers(data.users || []);
+    } catch (err) {
+      setError('Network error while loading users.');
+      if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+        console.error('[admin/users] load network error', err);
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -26,8 +49,32 @@ export function AdminUsers() {
     const body: any = { id };
     if (act !== 'delete') body.action = act;
     const csrf = document.cookie.split('; ').find((c) => c.startsWith('nd_csrf='))?.split('=')[1] || '';
-    await fetch('/api/admin/users', { method, headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf }, body: JSON.stringify(body) });
-    load();
+
+    try {
+      const res = await fetch('/api/admin/users', {
+        method,
+        headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf },
+        body: JSON.stringify(body)
+      });
+
+      const requestId = res.headers.get('x-request-id') || 'n/a';
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.error || `Action failed (request ${requestId})`);
+        if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+          console.error('[admin/users] action failed', { status: res.status, requestId, error: data?.error, action: act, id });
+        }
+        return;
+      }
+
+      await load();
+    } catch (err) {
+      setError('Network error while applying user action.');
+      if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+        console.error('[admin/users] action network error', err);
+      }
+    }
   }
 
   return (
@@ -40,6 +87,7 @@ export function AdminUsers() {
         {loading ? <span className="pill">Loading…</span> : null}
       </div>
       <div className="mt-4 space-y-3">
+        {error ? <p className="text-sm text-[color:var(--danger)]">{error}</p> : null}
         {users.map((u) => (
           <div key={u.id} className="rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] p-3">
             <div className="flex items-start justify-between gap-3">

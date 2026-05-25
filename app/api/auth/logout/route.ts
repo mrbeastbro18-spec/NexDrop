@@ -1,19 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
-import { env } from '@/lib/env';
-import { clearAuthCookies, hashToken, rotateTokens, saveSession, setAuthCookies, signAccessToken, signRefreshToken, verifyRefreshToken } from '@/lib/auth';
-import { sendEmail } from '@/lib/email';
-import * as bcrypt from 'bcryptjs';
+import { hashToken } from '@/lib/auth';
+import { logServerError } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
+  const requestId = randomUUID();
   const refresh = req.cookies.get('nd_refresh')?.value;
-  if (refresh) {
-    await prisma.session.deleteMany({ where: { tokenHash: await hashToken(refresh) } });
+
+  try {
+    if (refresh) {
+      await prisma.session.deleteMany({ where: { tokenHash: await hashToken(refresh) } });
+    }
+  } catch (error) {
+    // Keep logout resilient even when session storage is unavailable.
+    logServerError('auth.logout.session_cleanup_failed', error, { requestId });
   }
-  const res = NextResponse.json({ ok: true });
+
+  const res = NextResponse.json({ ok: true }, { headers: { 'x-request-id': requestId } });
   res.cookies.set('nd_access', '', { path: '/', maxAge: 0 });
   res.cookies.set('nd_refresh', '', { path: '/', maxAge: 0 });
+  res.cookies.set('nd_csrf', '', { path: '/', maxAge: 0 });
   return res;
 }

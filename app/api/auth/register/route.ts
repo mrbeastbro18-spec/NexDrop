@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { queueEmail } from '@/lib/email';
 import { env } from '@/lib/env';
 import * as bcrypt from 'bcryptjs';
-import { randomUUID } from 'node:crypto';
 import { registerSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
+import { logServer, logServerError } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
+  const requestId = randomUUID();
+
   try {
     // Get client IP for rate limiting
     const clientIp = getClientIp(req.headers);
@@ -17,12 +20,19 @@ export async function POST(req: NextRequest) {
     // Rate limit registration attempts by IP
     const rateLimit = await rateLimitAuth(`register:${clientIp}`);
     if (!rateLimit.success) {
+      logServer('warn', 'auth.register.rate_limited', { requestId, clientIp });
       return NextResponse.json(
         {
           error: 'Too many registration attempts. Try again later.',
           retryAfter: rateLimit.retryAfter
         },
-        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } }
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateLimit.retryAfter),
+            'x-request-id': requestId
+          }
+        }
       );
     }
 
@@ -32,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     if (!validation.success) {
       const errorMessage = validation.error.issues[0]?.message || 'Validation failed';
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return NextResponse.json({ error: errorMessage }, { status: 400, headers: { 'x-request-id': requestId } });
     }
 
     const { email, password, fullName } = validation.data;
@@ -43,7 +53,7 @@ export async function POST(req: NextRequest) {
     if (existing) {
       return NextResponse.json(
         { error: 'Email already registered' },
-        { status: 409 }
+        { status: 409, headers: { 'x-request-id': requestId } }
       );
     }
 
@@ -89,17 +99,22 @@ export async function POST(req: NextRequest) {
       console.error('Analytics error:', error);
     }
 
-    return NextResponse.json({
-      ok: true,
-      message: smtpConfigured
-        ? 'Account created. Check your email to verify your account.'
-        : 'Account created and ready to use. SMTP is not configured, so email verification was skipped.'
-    });
+    logServer('info', 'auth.register.success', { requestId, userId: user.id });
+
+    return NextResponse.json(
+      {
+        ok: true,
+        message: smtpConfigured
+          ? 'Account created. Check your email to verify your account.'
+          : 'Account created and ready to use. SMTP is not configured, so email verification was skipped.'
+      },
+      { headers: { 'x-request-id': requestId } }
+    );
   } catch (error) {
-    console.error('Register error:', error);
+    logServerError('auth.register.failed', error, { requestId });
     return NextResponse.json(
       { error: 'Registration failed' },
-      { status: 500 }
+      { status: 500, headers: { 'x-request-id': requestId } }
     );
   }
 }

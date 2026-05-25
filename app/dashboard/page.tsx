@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { currentUser } from '@/lib/auth';
 import utils from '@/lib/utils.js';
 import { redirect } from 'next/navigation';
+import { BOOTSTRAP_ADMIN_SUBJECT } from '@/lib/admin-bootstrap';
 
 type Props = {
   searchParams?: Promise<{ [key: string]: string | undefined }>;
@@ -13,6 +14,12 @@ type Props = {
 export default async function DashboardPage({ searchParams }: Props) {
   const user = await currentUser();
   if (!user) redirect('/login');
+
+  // If this session is the bootstrap admin (env-based), send them to the
+  // admin UI instead of attempting to load a per-user dashboard from the DB.
+  if (user.id === BOOTSTRAP_ADMIN_SUBJECT) {
+    redirect('/admin');
+  }
 
   const resolvedSearchParams = (await searchParams) ?? {};
 

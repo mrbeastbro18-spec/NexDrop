@@ -113,4 +113,12 @@ For SynthLaunch, use the same production commands listed above:
 
 Health check endpoint:
 
-- `GET /api/health` returns `200` with `{ ok: true }` and can be used as a container health path.
+- `GET /api/health` returns liveness status and is safe for public health checks.
+- `GET /api/health/ready` returns readiness (`200`/`503`) with non-sensitive dependency status (`database`, `redis`).
+
+Auth and admin diagnostics:
+
+- Auth APIs now include an `x-request-id` response header for easier trace correlation.
+- Optional bootstrap admin login is available using `ADMIN_BOOTSTRAP_EMAIL` + `ADMIN_BOOTSTRAP_PASSWORD`.
+- Set `NEXT_PUBLIC_ENABLE_DEBUG_LOGS=true` to emit auth/admin request failures in browser console.
+- Set `ENABLE_DEBUG_LOGS=true` to emit structured server debug logs.

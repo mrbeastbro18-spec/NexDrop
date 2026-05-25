@@ -72,6 +72,10 @@ const envSchema = z.object({
   EMAIL_QUEUE_ENABLED: z.preprocess(normalizeBoolean, z.boolean()).default(false),
   EMAIL_QUEUE_RETRIES: z.preprocess(normalizeNumber, z.number().int().nonnegative()).default(3),
   ADMIN_EMAILS: z.preprocess(normalizeString, z.string().optional()).default(''),
+  ADMIN_BOOTSTRAP_EMAIL: z.preprocess(normalizeString, z.string().optional()).default(''),
+  ADMIN_BOOTSTRAP_PASSWORD: z.preprocess(normalizeString, z.string().optional()).default(''),
+  ENABLE_DEBUG_LOGS: z.preprocess(normalizeBoolean, z.boolean()).default(false),
+  NEXT_PUBLIC_ENABLE_DEBUG_LOGS: z.preprocess(normalizeBoolean, z.boolean()).default(false),
   NEXT_PUBLIC_ADSENSE_CLIENT: z.preprocess(normalizeString, z.string().optional()).default('')
 });
 

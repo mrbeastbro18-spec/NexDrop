@@ -16,15 +16,41 @@ export default function RegisterPage() {
     e.preventDefault();
     setBusy(true);
     setError('');
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fullName, email, password })
-    });
-    const data = await res.json();
-    setBusy(false);
-    if (!res.ok) return setError(data.error || 'Registration failed');
-    router.push('/login?registered=1');
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, password })
+      });
+
+      const requestId = res.headers.get('x-request-id') || 'n/a';
+      const data = await res.json().catch(() => ({}));
+      setBusy(false);
+
+      if (!res.ok) {
+        if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+          console.error('[auth/register] failed', {
+            status: res.status,
+            requestId,
+            error: data?.error || 'Registration failed'
+          });
+        }
+        return setError(data?.error || `Registration failed (request ${requestId})`);
+      }
+
+      if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+        console.log('[auth/register] success', { requestId });
+      }
+
+      router.push('/login?registered=1');
+    } catch (err) {
+      setBusy(false);
+      if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
+        console.error('[auth/register] network error', err);
+      }
+      setError('Network error while registering. Please try again.');
+    }
   }
 
   return (

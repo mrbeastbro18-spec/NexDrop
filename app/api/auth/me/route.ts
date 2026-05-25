@@ -1,25 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { env } from '@/lib/env';
-import { clearAuthCookies, hashToken, rotateTokens, saveSession, setAuthCookies, signAccessToken, signRefreshToken, verifyRefreshToken } from '@/lib/auth';
-import { sendEmail } from '@/lib/email';
-import * as bcrypt from 'bcryptjs';
+import { randomUUID } from 'node:crypto';
+import { currentUser } from '@/lib/auth';
+import { logServerError } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get('nd_access')?.value;
-  if (!token) return NextResponse.json({ user: null });
+  const requestId = randomUUID();
 
   try {
-    const { verifyAccessToken } = await import('@/lib/auth');
-    const payload = await verifyAccessToken(token);
-    const user = await prisma.user.findUnique({
-      where: { id: payload.sub },
-      select: { id: true, email: true, fullName: true, role: true, storageUsed: true, storageLimit: true, isVerified: true }
-    });
-    return NextResponse.json({ user });
-  } catch {
-    return NextResponse.json({ user: null });
+    const user = await currentUser();
+    return NextResponse.json({ user }, { headers: { 'x-request-id': requestId } });
+  } catch (error) {
+    logServerError('auth.me.failed', error, { requestId });
+    return NextResponse.json({ user: null }, { headers: { 'x-request-id': requestId } });
   }
 }
