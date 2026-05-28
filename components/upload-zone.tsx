@@ -73,10 +73,13 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
         onDragOver={handleDragOver}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter') document.getElementById('file-input')?.click(); }}
-        className="rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--panel-strong)] p-4">
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') document.getElementById('file-input')?.click(); }}
+        className="upload-dropzone p-4 sm:p-5">
         <input id="file-input" className="field" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-        <p className="mt-3 text-sm text-[color:var(--muted)]">Or drag and drop a file here. Large files are split into chunks automatically.</p>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-[color:var(--muted)]">Or drag and drop a file here. Large files are split into chunks automatically.</p>
+          {file ? <p className="text-sm font-medium text-[color:var(--text)]">Selected: {file.name}</p> : <p className="text-sm text-[color:var(--muted)]">No file selected</p>}
+        </div>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <button disabled={!file || busy} className="btn btn-primary" onClick={uploadSelected} type="button">

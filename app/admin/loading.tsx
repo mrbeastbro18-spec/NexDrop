@@ -15,8 +15,9 @@ export default function Loading() {
       <div className="grid gap-4 xl:grid-cols-[1.5fr_0.9fr]">
         <div className="section-card stack-4">
           <div className="skeleton h-4 w-32" />
-          <div className="skeleton h-40 w-full rounded-[24px]" />
-          <div className="skeleton h-40 w-full rounded-[24px]" />
+          <div className="skeleton h-24 w-full rounded-[24px]" />
+          <div className="skeleton h-24 w-full rounded-[24px]" />
+          <div className="skeleton h-24 w-full rounded-[24px]" />
         </div>
         <div className="section-card stack-4">
           <div className="skeleton h-4 w-28" />

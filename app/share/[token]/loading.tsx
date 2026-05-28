@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <main className="page-shell" aria-busy="true" aria-label="Loading shared file">
+    <main className="page-shell stack-6" aria-busy="true" aria-label="Loading shared file">
       <div className="hero-shell items-stretch">
         <div className="section-card stack-4">
           <div className="skeleton h-4 w-28" />

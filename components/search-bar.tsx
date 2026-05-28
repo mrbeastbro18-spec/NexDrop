@@ -39,11 +39,11 @@ export function SearchBar() {
         onChange={(e) => { setQ(e.target.value); scheduleSearch(e.target.value); }}
       />
       {results && (
-        <div className="absolute right-0 z-50 mt-2 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] shadow-[0_22px_55px_rgba(15,23,42,0.16)] md:w-96">
+        <div className="search-results absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] shadow-[0_22px_55px_rgba(15,23,42,0.16)] md:left-auto md:right-0 md:w-96">
           {loading ? <div className="p-3 text-sm text-[color:var(--muted)]">Searching…</div> : null}
           {results.length === 0 ? <div className="p-3 text-sm text-[color:var(--muted)]">No results</div> : null}
           {results.map((r) => (
-            <Link key={r.id} href={`/dashboard`} className="block border-b border-[var(--border)] px-3 py-2 transition hover:bg-[var(--accent-soft)] last:border-b-0">
+            <Link key={r.id} href={`/dashboard`} className="search-result-item block border-b border-[var(--border)] px-3 py-2 last:border-b-0">
               <div className="text-sm font-medium">{r.originalName}</div>
               <div className="text-xs text-[color:var(--muted)]">{r.size} • {new Date(r.createdAt).toLocaleDateString()}</div>
             </Link>

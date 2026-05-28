@@ -1,10 +1,40 @@
+import Link from 'next/link';
+
 export default function PrivacyPage() {
   return (
-    <main className="page-shell">
-      <div className="section-card stack-4">
-        <span className="eyebrow">Privacy</span>
-        <h1 className="title-lg">Privacy Policy</h1>
-        <p className="supporting max-w-3xl text-base leading-7">This is a starter privacy policy page for NexDrop. Replace it with your production policy before launch.</p>
+    <main className="page-shell stack-6">
+      <header className="glass-nav card nav-shell">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="brand-mark">N</span>
+          <span className="font-semibold tracking-tight">NexDrop</span>
+        </Link>
+        <div className="nav-links text-sm">
+          <Link href="/login">Sign in</Link>
+          <Link href="/register">Create account</Link>
+        </div>
+      </header>
+      <div className="hero-shell items-stretch">
+        <div className="hero-copy stack-5">
+          <span className="eyebrow">Privacy</span>
+          <div className="stack-4">
+            <h1 className="title-lg max-w-[11ch]">Privacy Policy</h1>
+            <p className="supporting max-w-3xl text-base leading-7">This is a starter privacy policy page for NexDrop. Replace it with your production policy before launch.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link className="btn btn-primary" href="/">Home</Link>
+            <Link className="btn btn-secondary" href="/register">Create account</Link>
+          </div>
+        </div>
+        <div className="hero-panel stack-4">
+          <div className="section-card stack-4">
+            <p className="title-sm font-semibold">What this covers</p>
+            <p className="detail text-sm leading-6">Use this area to describe collection, storage, retention, cookies, and user rights.</p>
+          </div>
+          <div className="section-grid">
+            <div className="feature-card"><span className="pill">Data</span><p className="detail mt-3 text-sm leading-6">Explain what account and upload data is stored.</p></div>
+            <div className="feature-card"><span className="pill">Access</span><p className="detail mt-3 text-sm leading-6">Describe who can view shared files and under what conditions.</p></div>
+          </div>
+        </div>
       </div>
     </main>
   );

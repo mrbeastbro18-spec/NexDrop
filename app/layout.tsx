@@ -22,7 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#0f172a" />
+        <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="light dark" />
       </head>
       <body className={`${manrope.variable} ${spaceGrotesk.variable}`}>
         <a href="#main" className="skip-link">Skip to content</a>

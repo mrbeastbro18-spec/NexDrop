@@ -60,6 +60,16 @@ export default async function AdminPage() {
           </div>
         </section>
 
+        <section className="section-card stack-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <span className="eyebrow">Admin control</span>
+              <h2 className="title-md mt-3">Operational tools in one place.</h2>
+            </div>
+            <p className="supporting max-w-2xl text-sm leading-6">Manage users, inspect metrics, and check service health with fewer jumps between views.</p>
+          </div>
+        </section>
+
         <div className="grid gap-4 xl:grid-cols-[1.5fr_0.9fr]">
           <div>
             {/* Client-side users management */}

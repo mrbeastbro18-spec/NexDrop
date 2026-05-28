@@ -16,10 +16,10 @@ export function PreviewModal({ file, open, onClose }: { file: any; open: boolean
   const isVideo = file.mimeType.startsWith('video/');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm" onClick={onClose} role="dialog" aria-modal>
-      <div className="max-w-4xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
-        <div className="section-card p-4">
-          <div className="flex items-center justify-between gap-3">
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6 backdrop-blur-md" onClick={onClose} role="dialog" aria-modal>
+      <div className="mx-auto w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+        <div className="section-card p-4 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="title-sm font-semibold">{file.originalName}</h2>
               <p className="detail text-sm">{file.mimeType}</p>

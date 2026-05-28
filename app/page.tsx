@@ -113,6 +113,47 @@ export default function HomePage() {
 
       <section className="hero-shell">
         <div className="section-card stack-5">
+          <span className="eyebrow">Workspace flow</span>
+          <div className="stack-4">
+            <h2 className="title-lg max-w-[12ch]">A simple path from upload to share.</h2>
+            <p className="supporting text-base leading-7">The interface keeps familiar file-app patterns while giving the important actions more hierarchy and breathing room.</p>
+          </div>
+          <div className="section-grid">
+            <div className="feature-card">
+              <p className="title-sm font-semibold">1. Upload</p>
+              <p className="detail mt-2 text-sm leading-6">Add files from any device with progress feedback and quota awareness.</p>
+            </div>
+            <div className="feature-card">
+              <p className="title-sm font-semibold">2. Organize</p>
+              <p className="detail mt-2 text-sm leading-6">Keep track of files, preview items, and manage access in one place.</p>
+            </div>
+            <div className="feature-card">
+              <p className="title-sm font-semibold">3. Share</p>
+              <p className="detail mt-2 text-sm leading-6">Create clean links for downloads, clients, and team handoffs.</p>
+            </div>
+          </div>
+        </div>
+        <div className="section-card stack-5">
+          <span className="eyebrow">Responsive by default</span>
+          <div className="stack-4">
+            <h2 className="title-lg max-w-[12ch]">Built to look steady on every screen.</h2>
+            <p className="supporting text-base leading-7">Cards, spacing, and action groups collapse cleanly on mobile while staying wide and readable on desktop.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="info-card">
+              <p className="title-sm font-semibold">Mobile</p>
+              <p className="detail mt-2 text-sm leading-6">Stacks content, stretches buttons, and keeps key actions easy to tap.</p>
+            </div>
+            <div className="info-card">
+              <p className="title-sm font-semibold">Desktop</p>
+              <p className="detail mt-2 text-sm leading-6">Uses the wider viewport for clearer hierarchy and calmer scanning.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="hero-shell">
+        <div className="section-card stack-5">
           <span className="eyebrow">How it works</span>
           <div className="section-grid">
             <div className="feature-card">
