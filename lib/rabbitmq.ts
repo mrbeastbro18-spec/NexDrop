@@ -1,9 +1,9 @@
-import amqp, { Channel, Connection } from 'amqplib';
+import amqp, { Channel, ChannelModel } from 'amqplib';
 import { env } from './env';
 
 export const EMAIL_QUEUE_NAME = 'email:queue';
 
-let connectionPromise: Promise<Connection | null> | null = null;
+let connectionPromise: Promise<ChannelModel | null> | null = null;
 let channelPromise: Promise<Channel | null> | null = null;
 
 function normalizeVHost(vhost: string): string {
@@ -26,7 +26,7 @@ export function isRabbitMqConfigured(): boolean {
   return Boolean(getRabbitMqUrl());
 }
 
-async function connectRabbitMq(): Promise<Connection | null> {
+async function connectRabbitMq(): Promise<ChannelModel | null> {
   const url = getRabbitMqUrl();
   if (!url) return null;
 
@@ -79,10 +79,22 @@ export async function publishRabbitMqMessage(queue: string, payload: unknown): P
   const channel = await getRabbitMqChannel();
   if (!channel) return false;
 
-  channel.sendToQueue(queue, Buffer.from(JSON.stringify(payload)), {
-    contentType: 'application/json',
-    persistent: true
-  });
+  try {
+    const published = channel.sendToQueue(queue, Buffer.from(JSON.stringify(payload)), {
+      contentType: 'application/json',
+      persistent: true
+    });
 
-  return true;
+    if (!published) {
+      console.error('RabbitMQ publish backpressure for queue:', queue);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('RabbitMQ publish failed:', error);
+    connectionPromise = null;
+    channelPromise = null;
+    return false;
+  }
 }

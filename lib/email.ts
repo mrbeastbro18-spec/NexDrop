@@ -58,8 +58,12 @@ export async function queueEmail(templateName: string, to: string, subject: stri
   }
 
   if (isRabbitMqConfigured()) {
-    const enqueued = await publishRabbitMqMessage(EMAIL_QUEUE_NAME, { job, attempts: 0 });
-    if (enqueued) return;
+    try {
+      const enqueued = await publishRabbitMqMessage(EMAIL_QUEUE_NAME, { job, attempts: 0 });
+      if (enqueued) return;
+    } catch (error) {
+      console.error('RabbitMQ enqueue failed, falling back to Redis', error);
+    }
   }
 
   const redis = getRedis();

@@ -81,7 +81,13 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter') document.getElementById('file-input')?.click(); }}
         className="rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--panel-strong)] p-4">
-        <input id="file-input" className="field" type="file" onChange={(e) => selectFile(e.target.files?.[0] || null)} />
+        <input
+          id="file-input"
+          className="field"
+          type="file"
+          accept=".txt,.md,.csv,.json,.xml,.rtf,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.jpg,.jpeg,.png,.gif,.webp,.mp3,.wav,.ogg,.flac,.mp4,.webm,.mov,.mkv"
+          onChange={(e) => selectFile(e.target.files?.[0] || null)}
+        />
         <p className="mt-3 text-sm text-[color:var(--muted)]">Or drag and drop a file here. Large files are split into chunks automatically.</p>
       </div>
       {file ? (

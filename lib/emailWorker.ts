@@ -24,26 +24,38 @@ async function runRabbitWorker() {
   await channel.prefetch(1);
   console.log('Email worker started (RabbitMQ)');
 
-  await channel.consume(EMAIL_QUEUE_NAME, async (msg) => {
-    if (!msg) return;
-
-    try {
-      const payload = JSON.parse(msg.content.toString('utf-8')) as EmailQueueJob;
-      await processEmailJob(payload, async (job) => {
-        channel.sendToQueue(EMAIL_QUEUE_NAME, Buffer.from(JSON.stringify(job)), {
-          contentType: 'application/json',
-          persistent: true
-        });
-      });
-      channel.ack(msg);
-    } catch (error) {
-      console.error('RabbitMQ worker message failed', error);
-      channel.ack(msg);
-    }
+  const shutdownPromise = new Promise<void>((resolve) => {
+    const finish = () => resolve();
+    channel.once('close', finish);
+    channel.once('error', finish);
   });
 
-  await new Promise<void>(() => {});
-  return true;
+  try {
+    await channel.consume(EMAIL_QUEUE_NAME, async (msg) => {
+      if (!msg) return;
+
+      try {
+        const payload = JSON.parse(msg.content.toString('utf-8')) as EmailQueueJob;
+        await processEmailJob(payload, async (job) => {
+          channel.sendToQueue(EMAIL_QUEUE_NAME, Buffer.from(JSON.stringify(job)), {
+            contentType: 'application/json',
+            persistent: true
+          });
+        });
+        channel.ack(msg);
+      } catch (error) {
+        console.error('RabbitMQ worker message failed', error);
+        channel.ack(msg);
+      }
+    });
+
+    await shutdownPromise;
+  } catch (error) {
+    console.error('RabbitMQ worker stopped unexpectedly', error);
+  }
+
+  console.error('RabbitMQ worker stopped, switching queue backend');
+  return false;
 }
 
 async function runRedisWorker() {

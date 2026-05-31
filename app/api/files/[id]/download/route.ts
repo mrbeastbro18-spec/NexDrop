@@ -9,6 +9,11 @@ import { downloads } from '@/lib/metrics';
 
 export const runtime = 'nodejs';
 
+function contentDispositionFilename(name: string) {
+  const safe = name.replace(/[\r\n"]/g, '_');
+  return `attachment; filename="${safe}"; filename*=UTF-8''${encodeURIComponent(name)}`;
+}
+
 export async function GET(req: NextRequest, ctx: any) {
   const user = await currentUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
@@ -73,7 +78,10 @@ export async function GET(req: NextRequest, ctx: any) {
   return new Response(Readable.toWeb(stream as any) as any, {
     headers: {
       'Content-Type': file.mimeType,
-      'Content-Disposition': `attachment; filename="${encodeURIComponent(file.originalName)}"`
+      'Content-Disposition': contentDispositionFilename(file.originalName),
+      'Cache-Control': 'private, no-store',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer'
     }
   });
 }

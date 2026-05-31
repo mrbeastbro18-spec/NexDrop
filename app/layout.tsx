@@ -1,5 +1,7 @@
 import './globals.css';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from '@/components/logo';
+import Link from 'next/link';
 import { Manrope, Space_Grotesk } from 'next/font/google';
 
 const manrope = Manrope({
@@ -45,6 +47,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="app-shell__ambient app-shell__ambient--one" />
           <div className="app-shell__ambient app-shell__ambient--two" />
           <div className="app-shell__noise" />
+
+          <header className="glass-nav card nav-shell">
+            <div className="flex items-center gap-3">
+              <Logo />
+            </div>
+            <div className="nav-links text-sm">
+              <Link href="/login">Sign in</Link>
+              <Link href="/register">Create account</Link>
+            </div>
+          </header>
+
           <div className="app-shell__content" id="main">{children}</div>
           <div className="app-shell__theme-toggle">
             <ThemeToggle />

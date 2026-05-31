@@ -19,6 +19,7 @@
     "db:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
     "email:worker": "tsx lib/emailWorker.ts",
+    "generate:jwt-secrets": "node scripts/generate-jwt-secrets.js",
     "test": "vitest run",
     "check": "npm run lint && npm test && npm run build",
     "test:e2e": "npx playwright test",

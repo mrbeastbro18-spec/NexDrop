@@ -10,6 +10,25 @@ const ARCHIVE_MIME_TYPES = [
   'application/gzip'
 ];
 
+const TEXT_LIKE_MIME_TYPES = [
+  'text/plain',
+  'text/csv',
+  'text/markdown',
+  'text/xml',
+  'application/xml',
+  'application/json',
+  'application/rtf'
+];
+
+const OFFICE_ZIP_MIME_TYPES = [
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/vnd.oasis.opendocument.text',
+  'application/vnd.oasis.opendocument.spreadsheet',
+  'application/vnd.oasis.opendocument.presentation'
+];
+
 const safeNamePattern = /^[^/\\\0\r\n\t]{1,180}$/;
 
 // Auth schemas
@@ -74,14 +93,27 @@ const ALLOWED_MIMES = [
   'image/webp',
   'text/plain',
   'text/csv',
+  'text/markdown',
+  'text/xml',
+  'application/xml',
+  'application/rtf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/vnd.oasis.opendocument.text',
+  'application/vnd.oasis.opendocument.spreadsheet',
+  'application/vnd.oasis.opendocument.presentation',
   'video/mp4',
   'video/webm',
+  'video/quicktime',
+  'video/x-matroska',
   'audio/mpeg',
   'audio/wav',
+  'audio/ogg',
+  'audio/flac',
   'application/json'
 ];
 
@@ -96,6 +128,14 @@ export const safeUploadMimeTypeSchema = mimeTypeSchema.refine(
   (mime) => !ARCHIVE_MIME_TYPES.includes(mime),
   'Archive uploads are disabled for security'
 );
+
+export function isTextLikeMime(mime: string): boolean {
+  return TEXT_LIKE_MIME_TYPES.includes(mime);
+}
+
+export function isOfficeZipMime(mime: string): boolean {
+  return OFFICE_ZIP_MIME_TYPES.includes(mime);
+}
 
 export const fileMetadataSchema = z.object({
   originalName: safeFileNameSchema,

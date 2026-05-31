@@ -5,6 +5,7 @@ import { env } from '@/lib/env';
 import {
   matchesBootstrapAdminCredentials,
   isBootstrapAdminLoginEnabled,
+  authCookieOptions,
   saveSession,
   signAccessToken,
   signRefreshToken
@@ -49,21 +50,8 @@ async function bootstrapAdminResponse(requestId: string) {
     maxAge: 7 * 24 * 60 * 60
   });
 
-  res.cookies.set('nd_access', accessToken, {
-    httpOnly: true,
-    sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 15 * 60
-  });
-
-  res.cookies.set('nd_refresh', refreshToken, {
-    httpOnly: true,
-    sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60
-  });
+  res.cookies.set('nd_access', accessToken, authCookieOptions('access', 15 * 60));
+  res.cookies.set('nd_refresh', refreshToken, authCookieOptions('refresh', 7 * 24 * 60 * 60));
 
   return res;
 }
@@ -193,21 +181,8 @@ export async function POST(req: NextRequest) {
       maxAge: 7 * 24 * 60 * 60
     });
 
-    res.cookies.set('nd_access', accessToken, {
-      httpOnly: true,
-      sameSite: 'strict', // Stricter CSRF protection
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 15 * 60 // 15 minutes
-    });
-
-    res.cookies.set('nd_refresh', refreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 // 7 days
-    });
+    res.cookies.set('nd_access', accessToken, authCookieOptions('access', 15 * 60));
+    res.cookies.set('nd_refresh', refreshToken, authCookieOptions('refresh', 7 * 24 * 60 * 60));
 
     logServer('info', 'auth.login.success', { requestId, userId: user.id });
     return res;

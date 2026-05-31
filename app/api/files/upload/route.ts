@@ -8,6 +8,7 @@ import { uploadInitSanity } from '@/lib/validation';
 import { uploads } from '@/lib/metrics';
 import { rateLimitUpload } from '@/lib/rate-limit';
 import { isExecutableBinary, looksLikeText, sniffBasicMime } from '@/lib/file-signature';
+import { isOfficeZipMime, isTextLikeMime } from '@/lib/validation';
 import fs from 'fs/promises';
 
 export const runtime = 'nodejs';
@@ -90,8 +91,8 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // PK.. -> zip
-        if (headerBytes.length >= 4 && headerBytes[0] === 0x50 && headerBytes[1] === 0x4b && headerBytes[2] === 0x03 && headerBytes[3] === 0x04) {
+        // PK.. -> zip container. Allow office documents, block generic archives.
+        if (headerBytes.length >= 4 && headerBytes[0] === 0x50 && headerBytes[1] === 0x4b && headerBytes[2] === 0x03 && headerBytes[3] === 0x04 && !isOfficeZipMime(mimeType)) {
           return NextResponse.json({ error: 'Archive uploads are not allowed' }, { status: 415 });
         }
 
@@ -229,13 +230,13 @@ export async function POST(req: NextRequest) {
           throw new Error('executable');
         }
 
-        // Text-typed uploads should look like text
-        if ((mimeType === 'text/plain' || mimeType === 'application/json') && !looksLikeText(header)) {
+        // Text-like uploads should look like text
+        if (isTextLikeMime(mimeType) && !looksLikeText(header)) {
           throw new Error('not-text');
         }
 
         // Archive / Zip detection
-        if (sniffedMime === 'archive-or-office-zip') {
+        if (sniffedMime === 'archive-or-office-zip' && !isOfficeZipMime(mimeType)) {
           throw new Error('archive');
         }
 

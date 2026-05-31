@@ -104,3 +104,20 @@ export function ensureRequiredEnvForProduction() {
     }
   }
 }
+
+export function validateJwtSecrets() {
+  const warnings: string[] = [];
+  if (!env.JWT_ACCESS_SECRET || env.JWT_ACCESS_SECRET.startsWith('dev-secret') || env.JWT_ACCESS_SECRET.length < 32) {
+    warnings.push('JWT_ACCESS_SECRET is using a default or weak value (min 32 chars recommended)');
+  }
+  if (!env.JWT_REFRESH_SECRET || env.JWT_REFRESH_SECRET.startsWith('dev-secret') || env.JWT_REFRESH_SECRET.length < 32) {
+    warnings.push('JWT_REFRESH_SECRET is using a default or weak value (min 32 chars recommended)');
+  }
+  if (warnings.length > 0) {
+    if (env.NODE_ENV === 'production') {
+      throw new Error(`Invalid JWT secrets: ${warnings.join('; ')}`);
+    } else {
+      console.warn('Environment JWT secret warnings:', warnings.join('; '));
+    }
+  }
+}

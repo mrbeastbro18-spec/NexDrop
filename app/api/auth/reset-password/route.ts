@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revokeAllUserSessions } from '@/lib/auth';
 import * as bcrypt from 'bcryptjs';
 import { resetPasswordSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
@@ -43,6 +44,14 @@ export async function POST(req: NextRequest) {
         resetTokenExpiresAt: null
       }
     });
+
+    // Revoke all existing sessions for this user so any existing refresh
+    // tokens become invalid after a password reset.
+    try {
+      await revokeAllUserSessions(user.id);
+    } catch (err) {
+      console.error('Failed to revoke user sessions after password reset:', err);
+    }
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {

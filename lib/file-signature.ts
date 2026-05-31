@@ -32,6 +32,8 @@ export function sniffBasicMime(buffer: Uint8Array): string | null {
   if (buffer.length >= 12 && startsWith(buffer, [0x52, 0x49, 0x46, 0x46]) && buffer[8] === 0x57 && buffer[9] === 0x41 && buffer[10] === 0x56 && buffer[11] === 0x45) return 'audio/wav';
   if (buffer.length >= 8 && startsWith(buffer, [0x52, 0x49, 0x46, 0x46]) && buffer[8] === 0x41 && buffer[9] === 0x56 && buffer[10] === 0x49 && buffer[11] === 0x20) return 'video/avi';
   if (buffer.length >= 12 && buffer[4] === 0x66 && buffer[5] === 0x74 && buffer[6] === 0x79 && buffer[7] === 0x70) return 'video/mp4';
+  if (buffer.length >= 4 && startsWith(buffer, [0x4f, 0x67, 0x67, 0x53])) return 'audio/ogg';
+  if (buffer.length >= 4 && startsWith(buffer, [0x66, 0x4c, 0x61, 0x43])) return 'audio/flac';
   if (buffer.length >= 2 && startsWith(buffer, [0x50, 0x4b])) return 'archive-or-office-zip';
   return null;
 }

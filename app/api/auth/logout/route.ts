@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
-import { hashToken } from '@/lib/auth';
+import { authCookieOptions, hashToken } from '@/lib/auth';
 import { logServerError } from '@/lib/logger';
 
 export const runtime = 'nodejs';
@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
   }
 
   const res = NextResponse.json({ ok: true }, { headers: { 'x-request-id': requestId } });
-  res.cookies.set('nd_access', '', { path: '/', maxAge: 0 });
-  res.cookies.set('nd_refresh', '', { path: '/', maxAge: 0 });
+  res.cookies.set('nd_access', '', authCookieOptions('access', 0));
+  res.cookies.set('nd_refresh', '', authCookieOptions('refresh', 0));
   res.cookies.set('nd_csrf', '', { path: '/', maxAge: 0 });
   return res;
 }
