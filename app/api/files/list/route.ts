@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import utils from '@/lib/utils.js';
+import { paginationSchema } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
@@ -10,8 +11,15 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const url = new URL(req.url);
-  const page = Math.max(1, Number(url.searchParams.get('page') || '1'));
-  const perPage = Math.min(100, Math.max(5, Number(url.searchParams.get('perPage') || '20')));
+  const validation = paginationSchema.safeParse({
+    page: url.searchParams.get('page'),
+    perPage: url.searchParams.get('perPage')
+  });
+  if (!validation.success) {
+    return NextResponse.json({ error: 'Invalid pagination parameters' }, { status: 400 });
+  }
+
+  const { page, perPage } = validation.data;
 
   const where = { userId: user.id };
   const total = await prisma.file.count({ where });

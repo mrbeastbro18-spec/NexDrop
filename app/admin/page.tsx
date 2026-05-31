@@ -37,9 +37,11 @@ export default async function AdminPage() {
             <span className="eyebrow">Administration</span>
             <div className="stack-4">
               <h1 className="title-lg max-w-[10ch]">Run the platform from a cleaner control room.</h1>
-              <p className="supporting max-w-2xl text-base leading-7">
-                Summary stats, user controls, and metrics live in the same polished admin layout.
-              </p>
+              <p className="supporting max-w-2xl text-base leading-7">Summary stats, user controls, and metrics live in the same polished admin layout.</p>
+            </div>
+            <div className="section-card stack-4">
+              <p className="title-sm font-semibold">Admin state</p>
+              <p className="detail text-sm leading-6">Use this area to manage users, inspect metrics, and verify service health without jumping between pages.</p>
             </div>
           </div>
           <div className="hero-panel stack-4">
@@ -72,7 +74,6 @@ export default async function AdminPage() {
 
         <div className="grid gap-4 xl:grid-cols-[1.5fr_0.9fr]">
           <div>
-            {/* Client-side users management */}
             <AdminUsersWrapper />
           </div>
           <div className="section-card stack-4">
@@ -80,9 +81,11 @@ export default async function AdminPage() {
               <h2 className="title-md font-semibold">Metrics</h2>
               <p className="detail mt-2 text-sm leading-6">Basic metrics are available in /api/admin/stats and /api/metrics.</p>
             </div>
-            <a className="btn btn-secondary" href="/api/metrics">Open metrics</a>
-            <a className="btn btn-ghost" href="/api/health">Health (live)</a>
-            <a className="btn btn-ghost" href="/api/health/ready">Health (ready)</a>
+            <div className="grid gap-2">
+              <a className="btn btn-secondary" href="/api/metrics">Open metrics</a>
+              <a className="btn btn-ghost" href="/api/health">Health (live)</a>
+              <a className="btn btn-ghost" href="/api/health/ready">Health (ready)</a>
+            </div>
           </div>
         </div>
       </main>

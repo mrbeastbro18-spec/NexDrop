@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ShieldCheck, Trash2, ArrowUpRight, Loader2 } from 'lucide-react';
 
 export function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
@@ -92,13 +93,13 @@ export function AdminUsers() {
   }
 
   return (
-    <div className="section-card">
+    <div className="section-card stack-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="title-md font-semibold">Users</h2>
           <p className="detail mt-1 text-sm">Promote, demote, or remove access from the admin console.</p>
         </div>
-        {loading ? <span className="pill">Loading…</span> : null}
+        {loading ? <span className="pill inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" aria-hidden />Loading…</span> : null}
       </div>
       <div className="mt-4 space-y-3">
         {bootstrapMode ? (
@@ -113,7 +114,7 @@ export function AdminUsers() {
           </div>
         ) : null}
         {users.map((u) => (
-          <div key={u.id} className="rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] p-3 sm:p-4">
+          <div key={u.id} className="rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] p-3 sm:p-4 shadow-[8px_8px_0_rgba(30,36,48,0.08)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="font-medium">{u.fullName || u.email}</div>
@@ -122,8 +123,21 @@ export function AdminUsers() {
               <span className="pill">{u.role}</span>
             </div>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              {u.role !== 'ADMIN' ? <button className="btn btn-secondary btn-sm w-full sm:w-auto" disabled={bootstrapMode} onClick={() => action(u.id, 'promote')} type="button">Promote</button> : <button className="btn btn-secondary btn-sm w-full sm:w-auto" disabled={bootstrapMode} onClick={() => action(u.id, 'demote')} type="button">Demote</button>}
-              <button className="btn btn-ghost btn-sm w-full sm:w-auto" disabled={bootstrapMode} onClick={() => action(u.id, 'delete')} type="button">Delete</button>
+              {u.role !== 'ADMIN' ? (
+                <button className="btn btn-secondary btn-sm w-full sm:w-auto" disabled={bootstrapMode} onClick={() => action(u.id, 'promote')} type="button">
+                  <ShieldCheck className="h-4 w-4" />
+                  Promote
+                </button>
+              ) : (
+                <button className="btn btn-secondary btn-sm w-full sm:w-auto" disabled={bootstrapMode} onClick={() => action(u.id, 'demote')} type="button">
+                  <ArrowUpRight className="h-4 w-4" />
+                  Demote
+                </button>
+              )}
+              <button className="btn btn-ghost btn-sm w-full sm:w-auto" disabled={bootstrapMode} onClick={() => action(u.id, 'delete')} type="button">
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </button>
             </div>
           </div>
         ))}

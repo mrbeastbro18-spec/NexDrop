@@ -5,12 +5,16 @@ import { Readable } from 'stream';
 import * as bcrypt from 'bcryptjs';
 import { rateLimitShareDownload, getClientIp } from '@/lib/rate-limit';
 import { downloads } from '@/lib/metrics';
+import { shareTokenSchema } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest, ctx: any) {
   const params = await (ctx?.params ?? {});
   const { token } = params as { token: string };
+  if (!shareTokenSchema.safeParse(token).success) {
+    return new Response('Invalid share token', { status: 400 });
+  }
   const share = await prisma.shareLink.findUnique({ where: { token }, include: { file: true } });
   if (!share) return new Response('Not found', { status: 404 });
   if (share.expiresAt && share.expiresAt < new Date()) return new Response('Expired', { status: 410 });

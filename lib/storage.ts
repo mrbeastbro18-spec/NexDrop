@@ -4,25 +4,32 @@ import path from 'path';
 import { env } from './env';
 import utils from './utils.js';
 
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-  type GetObjectCommandInput
-} from '@aws-sdk/client-s3';
+type S3LikeClient = {
+  send: (command: unknown) => Promise<any>;
+};
 
-const s3 = env.S3_ENABLED && env.S3_ACCESS_KEY && env.S3_SECRET_KEY
-  ? new S3Client({
-      region: env.S3_REGION,
-      endpoint: env.S3_ENDPOINT || undefined,
-      forcePathStyle: !!env.S3_ENDPOINT,
-      credentials: {
-        accessKeyId: env.S3_ACCESS_KEY,
-        secretAccessKey: env.S3_SECRET_KEY
-      }
-    })
-  : null;
+let s3ClientPromise: Promise<S3LikeClient | null> | null = null;
+
+async function getS3Client(): Promise<S3LikeClient | null> {
+  if (!env.S3_ENABLED || !env.S3_ACCESS_KEY || !env.S3_SECRET_KEY) return null;
+  if (!s3ClientPromise) {
+    s3ClientPromise = import('@aws-sdk/client-s3').then(({ S3Client }) => {
+      return new S3Client({
+        region: env.S3_REGION,
+        endpoint: env.S3_ENDPOINT || undefined,
+        forcePathStyle: !!env.S3_ENDPOINT,
+        credentials: {
+          accessKeyId: env.S3_ACCESS_KEY,
+          secretAccessKey: env.S3_SECRET_KEY
+        }
+      }) as unknown as S3LikeClient;
+    }).catch((error) => {
+      console.error('Failed to initialize S3 client:', error);
+      return null;
+    });
+  }
+  return s3ClientPromise;
+}
 
 export async function ensureStorage() {
   await fs.mkdir(env.STORAGE_PATH, { recursive: true });
@@ -70,9 +77,11 @@ export async function cleanupChunks(fileId: string) {
 }
 
 export async function uploadLocalToStore(localPath: string, key: string) {
-  if (!env.S3_ENABLED || !s3) return key;
+  const s3 = await getS3Client();
+  if (!s3) return key;
 
   const Body = fsSync.createReadStream(localPath);
+  const { PutObjectCommand } = await import('@aws-sdk/client-s3');
   await s3.send(new PutObjectCommand({ Bucket: env.S3_BUCKET, Key: key, Body }));
   // Optionally remove local file after upload
   try { await fs.rm(localPath, { force: true }); } catch (e) {}
@@ -81,6 +90,7 @@ export async function uploadLocalToStore(localPath: string, key: string) {
 
 export async function getReadableStream(storagePath: string, range?: { start?: number; end?: number }) {
   // If S3 enabled, treat storagePath as object Key
+  const s3 = await getS3Client();
   if (env.S3_ENABLED && s3) {
     const cmdOpts: any = { Bucket: env.S3_BUCKET, Key: storagePath };
     if (range && (typeof range.start === 'number' || typeof range.end === 'number')) {
@@ -88,6 +98,7 @@ export async function getReadableStream(storagePath: string, range?: { start?: n
       const end = typeof range.end === 'number' ? range.end : '';
       cmdOpts.Range = `bytes=${start}-${end}`;
     }
+    const { GetObjectCommand } = await import('@aws-sdk/client-s3');
     const cmd = new GetObjectCommand(cmdOpts);
     const res = await s3.send(cmd);
     // @ts-ignore
@@ -106,8 +117,14 @@ export async function getReadableStream(storagePath: string, range?: { start?: n
 }
 
 export async function deleteStoredFile(storagePath: string) {
+  const s3 = await getS3Client();
   if (env.S3_ENABLED && s3) {
-    try { await s3.send(new DeleteObjectCommand({ Bucket: env.S3_BUCKET, Key: storagePath })); } catch (e) { console.error('S3 delete error', e); }
+    try {
+      const { DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+      await s3.send(new DeleteObjectCommand({ Bucket: env.S3_BUCKET, Key: storagePath }));
+    } catch (e) {
+      console.error('S3 delete error', e);
+    }
     return;
   }
 

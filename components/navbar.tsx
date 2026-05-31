@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SearchBar } from './search-bar';
+import { Logo } from './logo';
 
 export function Navbar() {
   const router = useRouter();
@@ -17,10 +18,7 @@ export function Navbar() {
     <div className="page-shell pb-0 pt-4">
       <nav role="navigation" aria-label="Main navigation" className="glass-nav card nav-shell">
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="brand-mark">N</span>
-            <span className="font-semibold tracking-tight">NexDrop</span>
-          </Link>
+          <Logo />
           <span className="pill hidden sm:inline-flex">Cloud workspace</span>
         </div>
         <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center md:justify-end">

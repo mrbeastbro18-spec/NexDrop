@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [showResend, setShowResend] = useState(false);
   const registered = searchParams.get('registered') === '1';
 
   async function submit(e: React.FormEvent) {
@@ -29,14 +30,15 @@ export default function LoginPage() {
       const data = await res.json().catch(() => ({}));
 
       setBusy(false);
-
       if (!res.ok) {
         if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
-          console.error('[auth/login] failed', {
-            status: res.status,
-            requestId,
-            error: data?.error || 'Login failed'
-          });
+          console.error('[auth/login] failed', { status: res.status, requestId, error: data?.error || 'Login failed' });
+        }
+        // Show inline resend option if account is unverified
+        if (res.status === 403 && data?.error && String(data.error).toLowerCase().includes('not verified')) {
+          setError('Email not verified. Check your inbox.');
+          setShowResend(true);
+          return;
         }
         return setError(data?.error || `Login failed (request ${requestId})`);
       }
@@ -63,7 +65,7 @@ export default function LoginPage() {
       description="Access your files, shares, and admin tools from a refined dashboard built for fast daily use."
       footer={(
         <p>
-          New here? <AuthLink href="/register">Create an account</AuthLink>. <AuthLink href="/forgot-password">Reset your password</AuthLink> if needed.
+          New here? <AuthLink href="/register">Create an account</AuthLink>. <AuthLink href="/forgot-password">Reset your password</AuthLink>.
         </p>
       )}
     >
@@ -85,7 +87,23 @@ export default function LoginPage() {
           <span className="detail">Use the same email address tied to your account.</span>
           <AuthLink href="/forgot-password">Forgot?</AuthLink>
         </div>
-        <button disabled={busy} className="btn btn-primary w-full" type="submit">{busy ? 'Signing in...' : 'Sign in'}</button>
+        <div className="space-y-2">
+          <button disabled={busy} className="btn btn-primary w-full" type="submit">{busy ? 'Signing in...' : 'Sign in'}</button>
+          {showResend ? (
+            <div className="pt-2">
+              <p className="detail text-sm">Didn&apos;t get the verification email?</p>
+              <button type="button" className="btn btn-outline mt-2" onClick={async () => {
+                try {
+                  const res = await fetch('/api/auth/resend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+                  const data = await res.json().catch(() => ({}));
+                  setError(data?.message || 'If an account exists we queued a verification email.');
+                } catch (err) {
+                  setError('Network error while resending verification.');
+                }
+              }}>Resend verification</button>
+            </div>
+          ) : null}
+        </div>
       </form>
     </AuthShell>
   );

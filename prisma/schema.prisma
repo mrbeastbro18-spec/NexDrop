@@ -1,7 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
-  // Keep a stable Linux target for the production runtime, while still
-  // allowing local development to use the current machine's native engine.
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -10,80 +8,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model User {
-  id                 String        @id @default(uuid())
-  email              String        @unique
-  passwordHash       String
-  fullName           String?
-  avatarUrl          String?
-  role               Role          @default(USER)
-  storageUsed        BigInt        @default(0)
-  storageLimit       BigInt        @default(53687091200)
-  isVerified         Boolean       @default(false)
-  verificationToken  String?       @unique
-  resetToken         String?       @unique
+  id                  String           @id @default(uuid())
+  email               String           @unique
+  passwordHash        String
+  fullName            String?
+  avatarUrl           String?
+  role                Role             @default(USER)
+  storageUsed         BigInt           @default(0)
+  storageLimit        BigInt           @default(53687091200)
+  isVerified          Boolean          @default(false)
+  verificationToken   String?          @unique
+  resetToken          String?          @unique
   resetTokenExpiresAt DateTime?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  sessions           Session[]
-  files              File[]
-  sharesCreated      ShareLink[]   @relation("ShareCreatedBy")
-  events             AnalyticsEvent[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  events              AnalyticsEvent[]
+  files               File[]
+  sessions            Session[]
+  sharesCreated       ShareLink[]      @relation("ShareCreatedBy")
 }
 
 model Session {
-  id           String   @id @default(uuid())
-  userId       String
-  tokenHash    String   @unique
-  deviceInfo   String?
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String   @unique
+  deviceInfo String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+  @@index([expiresAt], map: "idx_session_expiresat")
+  @@index([userId], map: "idx_session_userid")
 }
 
 model File {
-  id              String      @id @default(uuid())
-  userId          String
-  fileName        String
-  originalName    String
-  mimeType        String
-  size            BigInt      @default(0)
-  storagePath     String
-  isFolder        Boolean     @default(false)
-  isPublic       Boolean     @default(false)
-  downloadCount   Int         @default(0)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  shareLink       ShareLink?
-  uploadChunks    UploadChunk[]
+  id            String        @id @default(uuid())
+  userId        String
+  fileName      String
+  originalName  String
+  mimeType      String
+  size          BigInt        @default(0)
+  storagePath   String
+  isFolder      Boolean       @default(false)
+  isPublic      Boolean       @default(false)
+  downloadCount Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shareLink     ShareLink?
+  uploadChunks  UploadChunk[]
 
-  @@index([userId])
+  @@index([userId], map: "idx_file_userid")
+  @@index([userId, createdAt], map: "idx_file_userid_createdat")
 }
 
 model ShareLink {
-  id                 String   @id @default(uuid())
-  fileId             String   @unique
-  token              String   @unique
-  isPasswordProtected Boolean  @default(false)
-  passwordHash       String?
-  expiresAt          DateTime?
-  maxDownloads       Int?
-  currentDownloads   Int      @default(0)
-  createdById        String?
-  createdAt          DateTime @default(now())
+  id                  String    @id @default(uuid())
+  fileId              String    @unique
+  token               String    @unique
+  isPasswordProtected Boolean   @default(false)
+  passwordHash        String?
+  expiresAt           DateTime?
+  maxDownloads        Int?
+  currentDownloads    Int       @default(0)
+  createdById         String?
+  createdAt           DateTime  @default(now())
+  createdBy           User?     @relation("ShareCreatedBy", fields: [createdById], references: [id])
+  file                File      @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
-  file               File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  createdBy          User?    @relation("ShareCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-
-  @@index([token])
+  @@index([createdById], map: "idx_sharelink_createdbyid")
+  @@index([token], map: "idx_sharelink_token")
 }
 
 model UploadChunk {
@@ -93,7 +88,6 @@ model UploadChunk {
   chunkPath  String
   size       BigInt
   createdAt  DateTime @default(now())
-  
   file       File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   @@unique([fileId, chunkIndex])
@@ -105,8 +99,13 @@ model AnalyticsEvent {
   eventType String
   metadata  Json?
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
 
-  user      User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([eventType, createdAt], map: "idx_analytic_eventtype_createdat")
+  @@index([userId, eventType], map: "idx_analytic_userid_eventtype")
+}
 
-  @@index([userId, eventType])
+enum Role {
+  USER
+  ADMIN
 }

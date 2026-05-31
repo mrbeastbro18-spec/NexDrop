@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { env } from '@/lib/env';
 import { clearAuthCookies, hashToken, rotateTokens, saveSession, setAuthCookies, signAccessToken, signRefreshToken, verifyRefreshToken } from '@/lib/auth';
 import { sendEmail } from '@/lib/email';
 import * as bcrypt from 'bcryptjs';
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest) {
     where: { id: user.id },
     data: { isVerified: true, verificationToken: null }
   });
-
-  return NextResponse.redirect(new URL('/login?verified=1', new URL(req.url).origin));
+  // Redirect to the configured APP_URL (if present) after verification
+  const origin = env.APP_URL || new URL(req.url).origin;
+  return NextResponse.redirect(new URL('/login?verified=1', origin));
 }

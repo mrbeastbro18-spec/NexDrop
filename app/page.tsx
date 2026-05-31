@@ -2,51 +2,20 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <main className="page-shell stack-10 pt-5">
-      <header className="glass-nav card nav-shell">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="brand-mark">N</span>
-            <div className="leading-tight">
-              <div className="font-semibold tracking-tight">NexDrop</div>
-              <div className="meta text-xs">Classic cloud storage for teams</div>
-            </div>
-          </Link>
-        </div>
-        <nav className="nav-links text-sm" aria-label="Public navigation">
-          <Link href="/dashboard">Dashboard</Link>
-          <Link href="/login">Sign in</Link>
-          <Link href="/register">Create account</Link>
-        </nav>
-      </header>
-
+    <main className="page-shell stack-8 pt-5">
       <section className="hero-shell">
         <div className="hero-copy stack-6">
           <span className="eyebrow">Cloud transfer workspace</span>
           <div className="stack-4">
-            <h1 className="title-xl max-w-[11ch]">Ship files like a modern cloud workspace.</h1>
+            <h1 className="title-xl max-w-[11ch]">Ship files with a polished experience.</h1>
             <p className="supporting max-w-2xl text-lg leading-8">
-              NexDrop blends the clarity of Google Drive with the share-first feel of MediaFire. Upload files, organize work, create share links, and move fast on desktop or mobile.
+              NexDrop brings uploads, sharing, authentication, and admin tools into one refined dashboard designed for desktop and mobile.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link className="btn btn-primary" href="/register">Create account</Link>
             <Link className="btn btn-secondary" href="/login">Sign in</Link>
             <Link className="btn btn-ghost" href="/dashboard">Open dashboard</Link>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="info-card">
-              <div className="stat-number">10GB</div>
-              <p className="detail mt-1 text-sm">Starter storage for new accounts</p>
-            </div>
-            <div className="info-card">
-              <div className="stat-number">1 click</div>
-              <p className="detail mt-1 text-sm">Share links from the dashboard</p>
-            </div>
-            <div className="info-card">
-              <div className="stat-number">24/7</div>
-              <p className="detail mt-1 text-sm">Access across phone and desktop</p>
-            </div>
           </div>
         </div>
 
@@ -107,83 +76,6 @@ export default function HomePage() {
           <div className="info-card">
             <p className="title-sm font-semibold">Device-friendly</p>
             <p className="detail mt-2 text-sm leading-6">Layouts collapse cleanly on mobile while staying spacious on desktop.</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="hero-shell">
-        <div className="section-card stack-5">
-          <span className="eyebrow">Workspace flow</span>
-          <div className="stack-4">
-            <h2 className="title-lg max-w-[12ch]">A simple path from upload to share.</h2>
-            <p className="supporting text-base leading-7">The interface keeps familiar file-app patterns while giving the important actions more hierarchy and breathing room.</p>
-          </div>
-          <div className="section-grid">
-            <div className="feature-card">
-              <p className="title-sm font-semibold">1. Upload</p>
-              <p className="detail mt-2 text-sm leading-6">Add files from any device with progress feedback and quota awareness.</p>
-            </div>
-            <div className="feature-card">
-              <p className="title-sm font-semibold">2. Organize</p>
-              <p className="detail mt-2 text-sm leading-6">Keep track of files, preview items, and manage access in one place.</p>
-            </div>
-            <div className="feature-card">
-              <p className="title-sm font-semibold">3. Share</p>
-              <p className="detail mt-2 text-sm leading-6">Create clean links for downloads, clients, and team handoffs.</p>
-            </div>
-          </div>
-        </div>
-        <div className="section-card stack-5">
-          <span className="eyebrow">Responsive by default</span>
-          <div className="stack-4">
-            <h2 className="title-lg max-w-[12ch]">Built to look steady on every screen.</h2>
-            <p className="supporting text-base leading-7">Cards, spacing, and action groups collapse cleanly on mobile while staying wide and readable on desktop.</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="info-card">
-              <p className="title-sm font-semibold">Mobile</p>
-              <p className="detail mt-2 text-sm leading-6">Stacks content, stretches buttons, and keeps key actions easy to tap.</p>
-            </div>
-            <div className="info-card">
-              <p className="title-sm font-semibold">Desktop</p>
-              <p className="detail mt-2 text-sm leading-6">Uses the wider viewport for clearer hierarchy and calmer scanning.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="hero-shell">
-        <div className="section-card stack-5">
-          <span className="eyebrow">How it works</span>
-          <div className="section-grid">
-            <div className="feature-card">
-              <span className="pill">01</span>
-              <p className="title-sm mt-3 font-semibold">Upload in the dashboard</p>
-              <p className="detail mt-2 text-sm leading-6">Drag and drop files, monitor progress, and stay within quota limits.</p>
-            </div>
-            <div className="feature-card">
-              <span className="pill">02</span>
-              <p className="title-sm mt-3 font-semibold">Create a share link</p>
-              <p className="detail mt-2 text-sm leading-6">Publish a clean link for colleagues, clients, or public downloads.</p>
-            </div>
-            <div className="feature-card">
-              <span className="pill">03</span>
-              <p className="title-sm mt-3 font-semibold">Track everything</p>
-              <p className="detail mt-2 text-sm leading-6">Manage files, shares, and admin tools from one familiar place.</p>
-            </div>
-          </div>
-        </div>
-        <div className="section-card stack-5">
-          <span className="eyebrow">Designed for teams</span>
-          <div className="stack-4">
-            <h2 className="title-lg max-w-[13ch]">Classic layout, modern behavior.</h2>
-            <p className="supporting text-base leading-7">
-              The interface keeps the familiar structure people expect from file apps, but it adds cleaner spacing, stronger hierarchy, and a more premium visual style.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link className="btn btn-primary" href="/register">Start free</Link>
-            <Link className="btn btn-secondary" href="/dashboard">See dashboard</Link>
           </div>
         </div>
       </section>

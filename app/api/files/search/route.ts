@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import utils from '@/lib/utils.js';
+import { searchPaginationSchema } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
@@ -10,9 +11,16 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const url = new URL(req.url);
-  const q = (url.searchParams.get('q') || '').trim();
-  const page = Math.max(1, Number(url.searchParams.get('page') || '1'));
-  const perPage = Math.min(50, Math.max(5, Number(url.searchParams.get('perPage') || '10')));
+  const validation = searchPaginationSchema.safeParse({
+    q: url.searchParams.get('q'),
+    page: url.searchParams.get('page'),
+    perPage: url.searchParams.get('perPage')
+  });
+  if (!validation.success) {
+    return NextResponse.json({ error: 'Invalid search parameters' }, { status: 400 });
+  }
+
+  const { q, page, perPage } = validation.data;
 
   const where = {
     userId: user.id,

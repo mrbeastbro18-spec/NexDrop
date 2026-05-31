@@ -50,6 +50,19 @@ async function main() {
   } catch {}
 
   await fs.symlink(path.relative(path.dirname(aliasPath), targetPath), aliasPath, 'dir');
+
+  // Ensure static assets are present in the standalone bundle so the server can
+  // serve CSS/fonts/images when the standalone folder is deployed alone.
+  try {
+    const srcStatic = path.join(process.cwd(), '.next', 'static');
+    const destStatic = path.join(process.cwd(), '.next', 'standalone', '.next', 'static');
+    await fs.mkdir(path.dirname(destStatic), { recursive: true });
+    // Copy recursively if source exists
+    await fs.cp(srcStatic, destStatic, { recursive: true });
+  } catch (err) {
+    // Non-fatal - static copy may not be necessary in some environments
+    console.warn('Could not copy static assets into standalone bundle:', err.message || err);
+  }
 }
 
 main().catch((error) => {

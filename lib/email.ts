@@ -3,6 +3,7 @@ import { env } from './env';
 import { getRedis } from './redis';
 import fs from 'fs/promises';
 import path from 'path';
+import { EMAIL_QUEUE_NAME, isRabbitMqConfigured, publishRabbitMqMessage } from './rabbitmq';
 
 type Mail = {
   to: string;
@@ -54,6 +55,15 @@ export async function queueEmail(templateName: string, to: string, subject: stri
   if (!env.EMAIL_QUEUE_ENABLED) {
     await sendEmail(job);
     return;
+  }
+
+  if (isRabbitMqConfigured()) {
+    try {
+      const enqueued = await publishRabbitMqMessage(EMAIL_QUEUE_NAME, { job, attempts: 0 });
+      if (enqueued) return;
+    } catch (error) {
+      console.error('RabbitMQ enqueue failed, falling back to Redis', error);
+    }
   }
 
   const redis = getRedis();

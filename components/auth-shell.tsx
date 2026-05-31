@@ -23,12 +23,12 @@ export function AuthShell({ eyebrow, title, description, children, footer }: Aut
 
           <div className="stack-4">
             <div className="section-card p-4">
-              <p className="title-sm font-semibold">Premium file transfers</p>
-              <p className="detail mt-2 text-sm leading-6">A polished workspace for uploads, sharing, and admin review on any device.</p>
+              <p className="title-sm font-semibold">Fast file delivery</p>
+              <p className="detail mt-2 text-sm leading-6">Upload, preview, and share files with a clean, MediaFire-style workflow.</p>
             </div>
             <div className="section-card p-4">
-              <p className="title-sm font-semibold">Secure by default</p>
-              <p className="detail mt-2 text-sm leading-6">Sessions, CSRF checks, and rate limits are already in place.</p>
+              <p className="title-sm font-semibold">Built for clarity</p>
+              <p className="detail mt-2 text-sm leading-6">Large touch targets, stronger contrast, and focused actions across the app.</p>
             </div>
           </div>
         </aside>

@@ -36,7 +36,7 @@ const normalizeUrl = (value: unknown): string | undefined => {
   return trimmed;
 };
 
-const appUrlSchema = z.preprocess(normalizeUrl, z.string().url()).default('http://localhost:3000').transform((value) => {
+const appUrlSchema = z.preprocess(normalizeUrl, z.string().url().optional()).default('http://localhost:3000').transform((value) => {
   const url = new URL(value);
   if (url.pathname.endsWith('/')) url.pathname = url.pathname.slice(0, -1);
   return url.toString().replace(/\/$/, '');
@@ -71,6 +71,12 @@ const envSchema = z.object({
   SENTRY_ENVIRONMENT: z.preprocess(normalizeString, z.string()).default('development'),
   EMAIL_QUEUE_ENABLED: z.preprocess(normalizeBoolean, z.boolean()).default(false),
   EMAIL_QUEUE_RETRIES: z.preprocess(normalizeNumber, z.number().int().nonnegative()).default(3),
+  RABBITMQ_URL: z.preprocess(normalizeString, z.string().optional()).default(''),
+  RABBITMQ_HOST: z.preprocess(normalizeString, z.string().optional()).default(''),
+  RABBITMQ_PORT: z.preprocess(normalizeNumber, z.number().int().positive()).default(5672),
+  RABBITMQ_USERNAME: z.preprocess(normalizeString, z.string().optional()).default(''),
+  RABBITMQ_PASSWORD: z.preprocess(normalizeString, z.string().optional()).default(''),
+  RABBITMQ_VHOST: z.preprocess(normalizeString, z.string().optional()).default('/'),
   ADMIN_EMAILS: z.preprocess(normalizeString, z.string().optional()).default(''),
   ADMIN_BOOTSTRAP_EMAIL: z.preprocess(normalizeString, z.string().optional()).default(''),
   ADMIN_BOOTSTRAP_PASSWORD: z.preprocess(normalizeString, z.string().optional()).default(''),
@@ -95,6 +101,23 @@ export function ensureRequiredEnvForProduction() {
     if (!env.JWT_REFRESH_SECRET || env.JWT_REFRESH_SECRET.startsWith('dev-secret')) missing.push('JWT_REFRESH_SECRET');
     if (missing.length > 0) {
       throw new Error(`Missing or invalid required production environment variables: ${missing.join(', ')}`);
+    }
+  }
+}
+
+export function validateJwtSecrets() {
+  const warnings: string[] = [];
+  if (!env.JWT_ACCESS_SECRET || env.JWT_ACCESS_SECRET.startsWith('dev-secret') || env.JWT_ACCESS_SECRET.length < 32) {
+    warnings.push('JWT_ACCESS_SECRET is using a default or weak value (min 32 chars recommended)');
+  }
+  if (!env.JWT_REFRESH_SECRET || env.JWT_REFRESH_SECRET.startsWith('dev-secret') || env.JWT_REFRESH_SECRET.length < 32) {
+    warnings.push('JWT_REFRESH_SECRET is using a default or weak value (min 32 chars recommended)');
+  }
+  if (warnings.length > 0) {
+    if (env.NODE_ENV === 'production') {
+      throw new Error(`Invalid JWT secrets: ${warnings.join('; ')}`);
+    } else {
+      console.warn('Environment JWT secret warnings:', warnings.join('; '));
     }
   }
 }

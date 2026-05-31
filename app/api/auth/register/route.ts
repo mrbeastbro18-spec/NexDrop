@@ -48,6 +48,24 @@ export async function POST(req: NextRequest) {
     const { email, password, fullName } = validation.data;
     const smtpConfigured = Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
 
+    const emailRateLimit = await rateLimitAuth(`register:${email}`);
+    if (!emailRateLimit.success) {
+      logServer('warn', 'auth.register.email_rate_limited', { requestId, email });
+      return NextResponse.json(
+        {
+          error: 'Too many registration attempts for this email. Try again later.',
+          retryAfter: emailRateLimit.retryAfter
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(emailRateLimit.retryAfter),
+            'x-request-id': requestId
+          }
+        }
+      );
+    }
+
     // Check if email already exists
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -78,7 +96,8 @@ export async function POST(req: NextRequest) {
     // Queue verification email when SMTP is configured.
     if (smtpConfigured) {
       try {
-        const origin = new URL(req.url).origin;
+        // Prefer configured APP_URL from environment for links, fall back to request origin
+        const origin = env.APP_URL || new URL(req.url).origin;
         const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
         await queueEmail('verify-email', email, 'Verify your NexDrop account', { name: email, verifyUrl });
       } catch (emailError) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useSyncExternalStore } from 'react';
+import { Moon, SunMedium } from 'lucide-react';
 
 export function ThemeToggle() {
   const subscribe = (onStoreChange: () => void) => {
@@ -53,7 +54,7 @@ export function ThemeToggle() {
       }}
       type="button"
     >
-      <span aria-hidden="true">{theme === 'dark' ? '◐' : '◑'}</span>
+      {theme === 'dark' ? <Moon className="h-4 w-4" aria-hidden="true" /> : <SunMedium className="h-4 w-4" aria-hidden="true" />}
       {theme === 'dark' ? 'Dark' : 'Light'}
     </button>
   );

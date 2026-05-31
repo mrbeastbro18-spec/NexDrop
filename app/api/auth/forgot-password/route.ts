@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { queueEmail } from '@/lib/email';
 import { randomUUID } from 'node:crypto';
-import { emailSchema, forgotPasswordSchema } from '@/lib/validation';
+import { env } from '@/lib/env';
+import { forgotPasswordSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
@@ -38,6 +39,17 @@ export async function POST(req: NextRequest) {
 
     const { email } = validation.data;
 
+    const emailRateLimit = await rateLimitAuth(`forgot:${email}`);
+    if (!emailRateLimit.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many password reset requests for this email. Try again later.',
+          retryAfter: emailRateLimit.retryAfter
+        },
+        { status: 429, headers: { 'Retry-After': String(emailRateLimit.retryAfter) } }
+      );
+    }
+
     // Look up user (but don't reveal if exists)
     const user = await prisma.user.findUnique({ where: { email } });
 
@@ -66,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     // Queue reset email
     try {
-      const origin = new URL(req.url).origin;
+      const origin = env.APP_URL || new URL(req.url).origin;
       const resetUrl = `${origin}/reset-password?token=${resetToken}`;
       await queueEmail('reset-password', email, 'Reset your NexDrop password', { name: user.fullName || email, resetUrl });
     } catch (emailError) {

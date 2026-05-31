@@ -2,7 +2,7 @@ import { jwtVerify, SignJWT } from 'jose';
 import * as bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import utils from './utils.js';
-import { env } from './env';
+import { env, validateJwtSecrets } from './env';
 import { prisma } from './prisma';
 import { Role } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
@@ -40,6 +40,13 @@ export async function signRefreshToken(payload: { sub: string }) {
   return token;
 }
 
+// Validate JWT secrets at module load so developers see warnings early.
+try {
+  validateJwtSecrets();
+} catch (err) {
+  if (process.env.NODE_ENV === 'production') throw err;
+}
+
 export async function verifyAccessToken(token: string) {
   const { payload } = await jwtVerify(token, secret(env.JWT_ACCESS_SECRET));
   return payload as { sub: string; role: Role; exp: number; iat: number };
@@ -54,26 +61,42 @@ export async function hashToken(token: string) {
   return utils.sha256(token);
 }
 
-export function authCookieOptions(maxAgeSeconds: number) {
-  return {
+export function authCookieOptions(kind: 'access' | 'refresh', maxAgeSeconds: number) {
+  const cookieDomain = (() => {
+    try {
+      const url = new URL(env.APP_URL);
+      // Only set domain for non-localhost hostnames in production
+      if (process.env.NODE_ENV === 'production' && url.hostname && !url.hostname.includes('localhost')) return url.hostname;
+    } catch {
+      // ignore
+    }
+    return undefined;
+  })();
+
+  const base: any = {
     httpOnly: true,
-    sameSite: 'lax' as const,
     secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: maxAgeSeconds
   };
+  if (cookieDomain) base.domain = cookieDomain;
+
+  if (kind === 'access') {
+    return { ...base, sameSite: 'lax' as const };
+  }
+  return { ...base, sameSite: 'strict' as const };
 }
 
 export async function setAuthCookies(accessToken: string, refreshToken: string) {
   const store = await cookies();
-  store.set(accessName, accessToken, authCookieOptions(15 * 60));
-  store.set(refreshName, refreshToken, authCookieOptions(7 * 24 * 60 * 60));
+  store.set(accessName, accessToken, authCookieOptions('access', 15 * 60));
+  store.set(refreshName, refreshToken, authCookieOptions('refresh', 7 * 24 * 60 * 60));
 }
 
 export async function clearAuthCookies() {
   const store = await cookies();
-  store.set(accessName, '', { ...authCookieOptions(0), maxAge: 0 });
-  store.set(refreshName, '', { ...authCookieOptions(0), maxAge: 0 });
+  store.set(accessName, '', { ...authCookieOptions('access', 0), maxAge: 0 });
+  store.set(refreshName, '', { ...authCookieOptions('refresh', 0), maxAge: 0 });
 }
 
 export async function currentUser() {
@@ -128,6 +151,10 @@ export async function saveSession(userId: string, refreshToken: string, deviceIn
 export async function revokeSession(refreshToken: string) {
   const tokenHash = await hashToken(refreshToken);
   await prisma.session.deleteMany({ where: { tokenHash } });
+}
+
+export async function revokeAllUserSessions(userId: string) {
+  await prisma.session.deleteMany({ where: { userId } });
 }
 
 export async function rotateTokens(refreshToken: string, deviceInfo?: string) {

@@ -8,7 +8,16 @@ export function getRedis() {
   if (!client) {
     client = new Redis(env.REDIS_URL, {
       maxRetriesPerRequest: 1,
-      enableReadyCheck: false
+      enableReadyCheck: false,
+      lazyConnect: true,
+      connectTimeout: 5000,
+      retryStrategy: () => null
+    });
+
+    // Prevent unhandled error events from taking down the process when Redis is
+    // unavailable. Callers already treat Redis as optional and fail open.
+    client.on('error', (error) => {
+      console.error('[redis] connection error', error);
     });
   }
   return client;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
+import { z } from 'zod';
 import { requireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logServerError } from '@/lib/logger';
@@ -55,15 +56,17 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { id, action } = body || {};
-    if (!id || !action) return NextResponse.json({ error: 'Invalid' }, { status: 400, headers: { 'x-request-id': requestId } });
+    const patchSchema = z.object({ id: z.string().uuid('Invalid user ID'), action: z.enum(['promote', 'demote']) });
+    const validation = patchSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.issues[0]?.message || 'Invalid' }, { status: 400, headers: { 'x-request-id': requestId } });
+    }
 
+    const { id, action } = validation.data;
     if (action === 'promote') {
       await prisma.user.update({ where: { id }, data: { role: 'ADMIN' } });
     } else if (action === 'demote') {
       await prisma.user.update({ where: { id }, data: { role: 'USER' } });
-    } else {
-      return NextResponse.json({ error: 'Unknown action' }, { status: 400, headers: { 'x-request-id': requestId } });
     }
     return NextResponse.json({ ok: true }, { headers: { 'x-request-id': requestId } });
   } catch (err) {
@@ -90,8 +93,13 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403, headers: { 'x-request-id': requestId } });
     }
 
-    const { id } = (await req.json()) || {};
-    if (!id) return NextResponse.json({ error: 'Invalid' }, { status: 400, headers: { 'x-request-id': requestId } });
+    const body = await req.json().catch(() => ({}));
+    const deleteSchema = z.object({ id: z.string().uuid('Invalid user ID') });
+    const validation = deleteSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.issues[0]?.message || 'Invalid' }, { status: 400, headers: { 'x-request-id': requestId } });
+    }
+    const { id } = validation.data;
     await prisma.user.delete({ where: { id } });
     return NextResponse.json({ ok: true }, { headers: { 'x-request-id': requestId } });
   } catch (err) {

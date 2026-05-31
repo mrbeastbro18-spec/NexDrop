@@ -5,6 +5,7 @@ import { env } from '@/lib/env';
 import {
   matchesBootstrapAdminCredentials,
   isBootstrapAdminLoginEnabled,
+  authCookieOptions,
   saveSession,
   signAccessToken,
   signRefreshToken
@@ -16,6 +17,11 @@ import { loginSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
+
+function isPrismaUnavailable(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('Can\'t reach database server') || message.includes('PrismaClientInitializationError');
+}
 
 async function bootstrapAdminResponse(requestId: string) {
   const accessToken = await signAccessToken({ sub: 'env-admin', role: 'ADMIN' });
@@ -44,21 +50,8 @@ async function bootstrapAdminResponse(requestId: string) {
     maxAge: 7 * 24 * 60 * 60
   });
 
-  res.cookies.set('nd_access', accessToken, {
-    httpOnly: true,
-    sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 15 * 60
-  });
-
-  res.cookies.set('nd_refresh', refreshToken, {
-    httpOnly: true,
-    sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60
-  });
+  res.cookies.set('nd_access', accessToken, authCookieOptions('access', 15 * 60));
+  res.cookies.set('nd_refresh', refreshToken, authCookieOptions('refresh', 7 * 24 * 60 * 60));
 
   return res;
 }
@@ -188,25 +181,19 @@ export async function POST(req: NextRequest) {
       maxAge: 7 * 24 * 60 * 60
     });
 
-    res.cookies.set('nd_access', accessToken, {
-      httpOnly: true,
-      sameSite: 'strict', // Stricter CSRF protection
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 15 * 60 // 15 minutes
-    });
-
-    res.cookies.set('nd_refresh', refreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 // 7 days
-    });
+    res.cookies.set('nd_access', accessToken, authCookieOptions('access', 15 * 60));
+    res.cookies.set('nd_refresh', refreshToken, authCookieOptions('refresh', 7 * 24 * 60 * 60));
 
     logServer('info', 'auth.login.success', { requestId, userId: user.id });
     return res;
   } catch (error) {
+    if (isPrismaUnavailable(error)) {
+      logServer('error', 'auth.login.database_unavailable', { requestId });
+      return NextResponse.json(
+        { error: 'Authentication service is temporarily unavailable. Please try again later.' },
+        { status: 503, headers: { 'x-request-id': requestId } }
+      );
+    }
     logServerError('auth.login.failed', error, { requestId });
     return NextResponse.json(
       { error: 'Authentication failed' },

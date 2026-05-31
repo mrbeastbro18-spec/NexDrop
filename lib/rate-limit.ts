@@ -1,5 +1,43 @@
 import { getRedis } from './redis';
 
+type FallbackBucket = {
+  count: number;
+  resetAt: number;
+};
+
+const fallbackBuckets = new Map<string, FallbackBucket>();
+
+function fallbackRateLimit(key: string, limit: number, windowSeconds: number, now: number): RateLimitResult {
+  const resetAt = now + windowSeconds * 1000;
+  const bucket = fallbackBuckets.get(key);
+
+  if (!bucket || bucket.resetAt <= now) {
+    fallbackBuckets.set(key, { count: 1, resetAt });
+    return {
+      success: true,
+      remaining: Math.max(0, limit - 1),
+      resetAt: new Date(resetAt)
+    };
+  }
+
+  if (bucket.count >= limit) {
+    return {
+      success: false,
+      remaining: 0,
+      resetAt: new Date(bucket.resetAt),
+      retryAfter: Math.ceil((bucket.resetAt - now) / 1000)
+    };
+  }
+
+  bucket.count += 1;
+  fallbackBuckets.set(key, bucket);
+  return {
+    success: true,
+    remaining: Math.max(0, limit - bucket.count),
+    resetAt: new Date(bucket.resetAt)
+  };
+}
+
 export interface RateLimitOptions {
   key: string;
   limit: number;
@@ -26,13 +64,8 @@ export async function rateLimit(options: RateLimitOptions): Promise<RateLimitRes
   const redis = getRedis();
 
   try {
-    if (!redis) {
-      // Redis unavailable - fail open (allow request)
-      return {
-        success: true,
-        remaining: limit,
-        resetAt: new Date(now + window * 1000)
-      };
+    if (!redis || redis.status !== 'ready') {
+      return fallbackRateLimit(redisKey, limit, window, now);
     }
 
     // Lua script for atomic operation
@@ -74,12 +107,7 @@ export async function rateLimit(options: RateLimitOptions): Promise<RateLimitRes
     };
   } catch (error) {
     console.error('Rate limit error:', error);
-    // Fail open - allow request if Redis unavailable
-    return {
-      success: true,
-      remaining: limit,
-      resetAt: new Date(now + window * 1000)
-    };
+    return fallbackRateLimit(redisKey, limit, window, now);
   }
 }
 
@@ -103,9 +131,9 @@ export async function rateLimitAuth(identifier: string): Promise<RateLimitResult
 export async function rateLimitUpload(userId: string): Promise<RateLimitResult> {
   return rateLimit({
     key: `upload:${userId}`,
-    limit: 10,
+    limit: 3,
     window: 60,
-    message: 'Upload limit exceeded. Maximum 10 uploads per minute.'
+    message: 'Upload limit exceeded. Maximum 3 uploads per minute.'
   });
 }
 
@@ -116,7 +144,7 @@ export async function rateLimitUpload(userId: string): Promise<RateLimitResult> 
 export async function rateLimitDownload(ip: string): Promise<RateLimitResult> {
   return rateLimit({
     key: `download:${ip}`,
-    limit: 50,
+    limit: 30,
     window: 300,
     message: 'Download limit exceeded. Too many downloads.'
   });
@@ -129,7 +157,7 @@ export async function rateLimitDownload(ip: string): Promise<RateLimitResult> {
 export async function rateLimitShareDownload(shareToken: string): Promise<RateLimitResult> {
   return rateLimit({
     key: `share-download:${shareToken}`,
-    limit: 100,
+    limit: 50,
     window: 600,
     message: 'Share link download limit exceeded.'
   });
